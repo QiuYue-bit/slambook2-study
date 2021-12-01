@@ -2,7 +2,7 @@
  * @Author: Divenire
  * @Date: 2021-09-23 10:24:31
  * @LastEditors: Divenire
- * @LastEditTime: 2021-09-23 10:28:31
+ * @LastEditTime: 2021-12-01 16:46:03
  * @Description: 使用李代数对比轨迹误差
  */
 
@@ -16,8 +16,8 @@
 using namespace Sophus;
 using namespace std;
 
-string groundtruth_file = "../groundtruth.txt";
-string estimated_file = "../estimated.txt";
+string groundtruth_file = "../data/groundtruth.txt";
+string estimated_file = "../data/estimated.txt";
 
 typedef vector<Sophus::SE3d, Eigen::aligned_allocator<Sophus::SE3d>> TrajectoryType;
 
@@ -39,6 +39,7 @@ int main(int argc, char **argv) {
     Sophus::SE3d p1 = estimated[i], p2 = groundtruth[i];
     // 单个李代数之间的误差
     double error = (p2.inverse() * p1).log().norm();
+    //绝对轨迹误差ATE
     rmse += error * error;
   }
   rmse = rmse / double(estimated.size());
@@ -60,6 +61,7 @@ TrajectoryType ReadTrajectory(const string &path) {
   while (!fin.eof()) {
     double time, tx, ty, tz, qx, qy, qz, qw;
     fin >> time >> tx >> ty >> tz >> qx >> qy >> qz >> qw;
+    // 初始化李代数
     Sophus::SE3d p1(Eigen::Quaterniond(qw, qx, qy, qz), Eigen::Vector3d(tx, ty, tz));
     trajectory.push_back(p1);
   }
@@ -90,6 +92,7 @@ void DrawTrajectory(const TrajectoryType &gt, const TrajectoryType &esti) {
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
     glLineWidth(2);
+
     for (size_t i = 0; i < gt.size() - 1; i++) {
       glColor3f(0.0f, 0.0f, 1.0f);  // blue for ground truth
       glBegin(GL_LINES);

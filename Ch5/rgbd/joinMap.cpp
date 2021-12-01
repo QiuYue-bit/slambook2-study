@@ -2,7 +2,7 @@
  * @Author: Divenire
  * @Date: 2021-09-23 15:05:39
  * @LastEditors: Divenire
- * @LastEditTime: 2021-09-23 17:11:20
+ * @LastEditTime: 2021-12-01 22:20:02
  * @Description: 
  * 程序根据RGB-D相机的 深度和内参 计算出各个像素在相机坐标系下的点位置
     在根据位姿转换将点到世界坐标系下，生成点云
@@ -25,7 +25,7 @@ typedef vector<Sophus::SE3d, Eigen::aligned_allocator<Sophus::SE3d>> TrajectoryT
 typedef Eigen::Matrix<double, 6, 1> Vector6d;
 
 
-string poseFile = "../rgbd/pose.txt";
+string poseFile = "../data/pose.txt";
 
 // 在pangolin中画图，已写好，无需调整
 void showPointCloud(
@@ -42,9 +42,9 @@ int main(int argc, char **argv) {
     }
 
     for (int i = 0; i < 5; i++) {
-        boost::format fmt("../rgbd/%s/%d.%s"); //图像文件格式
-        colorImgs.push_back(cv::imread((fmt % "color" % (i + 1) % "png").str()));
-        depthImgs.push_back(cv::imread((fmt % "depth" % (i + 1) % "pgm").str(), -1)); // 使用-1读取原始图像
+        boost::format fmt("../data/%d.%s"); //图像文件格式
+        colorImgs.push_back(cv::imread((fmt  % (i + 1) % "png").str()));
+        depthImgs.push_back(cv::imread((fmt  % (i + 1) % "pgm").str(), -1)); // 使用-1读取原始图像
 
         double data[7] = {0};
         for (auto &d:data)
@@ -80,6 +80,8 @@ int main(int argc, char **argv) {
                 point[2] = double(d) / depthScale;
                 point[0] = (u - cx) * point[2] / fx;
                 point[1] = (v - cy) * point[2] / fy;
+
+                // 转换到统一坐标系下
                 Eigen::Vector3d pointWorld = T * point;
 
                 Vector6d p;
@@ -126,6 +128,7 @@ void showPointCloud(const vector<Vector6d, Eigen::aligned_allocator<Vector6d>> &
         glPointSize(2);
         glBegin(GL_POINTS);
         for (auto &p: pointcloud) {
+            // 
             glColor3d(p[3] / 255.0, p[4] / 255.0, p[5] / 255.0);
             glVertex3d(p[0], p[1], p[2]);
         }

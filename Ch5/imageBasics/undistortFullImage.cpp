@@ -7,7 +7,7 @@ using namespace std;
 
 
 
-string imagePath = "../imageBasics/pictrues/distorted.png";// 请确保路径正确
+string imagePath = "../data/distorted.png";// 请确保路径正确
 // 畸变参数
 double k1 = -0.28340811, k2 = 0.07395907, p1 = 0.00019359, p2 = 1.76187114e-05;
 // 内参

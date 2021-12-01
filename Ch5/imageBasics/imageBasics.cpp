@@ -2,7 +2,7 @@
  * @Author: Divenire
  * @Date: 2021-09-23 15:05:38
  * @LastEditors: Divenire
- * @LastEditTime: 2021-09-23 16:47:08
+ * @LastEditTime: 2021-12-01 21:34:14
  * @Description: 
  *  OPENCV的基本操作
  *  1.图像的读取，显示
@@ -23,9 +23,7 @@
 using namespace std;
 using namespace cv;
 
-string image_path = "../imageBasics/pictrues/ubuntu.png";
-string image_path1 = "/home/divenire/Divenire_ws/dataset/KITTI/dataset/sequences/00/image_0/000001.png";
-
+string image_path = "../data/ubuntu.png";
 
 // 三种访问的方法
 void method1(cv::Mat image);
@@ -82,7 +80,7 @@ int main(int argc, char **argv)
     cout << "遍历图像用时：" << time_used.count() << " 秒。" << endl;
 
 
-    cv::imshow("image_method", image_another);
+    cv::imshow("method2", image_another);
     cv::waitKey(0);
 
 

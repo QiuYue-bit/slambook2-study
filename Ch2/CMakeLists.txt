@@ -1,0 +1,2 @@
+add_subdirectory(hello_lib)
+add_subdirectory(project)

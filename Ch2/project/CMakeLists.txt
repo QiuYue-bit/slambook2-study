@@ -1,21 +1,15 @@
-# 声明要求的 cmake 最低版本
-cmake_minimum_required(VERSION 2.8)
+############################################################
+# 输出可执行文件目录
+############################################################
+# 二进制文件输出路径
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+# 设定库文件编译路径
+SET(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
-# 声明一个 cmake 工程
-project(HelloSlam)
-
-# 设置编译模式
-set(CMAKE_BUILD_TYPE Release)
-
-set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake_modules")
-
-# 寻找库文件
-find_package(hello REQUIRED)
-include_directories(${HELLO_INCLUDE_DIR})
-
+############################################################
+# 生成执行文件并链接
+############################################################
 # 添加可执行文件
 add_executable(HelloSlam useHello.cpp)
-target_link_libraries(${PROJECT_NAME}   ${HELLO_LIBRARY})
-
-
+target_link_libraries(HelloSlam   ${HELLO_LIBRARY})
 message("include dir:${HELLO_INCLUDE_DIR}  lib dir:${HELLO_LIBRARY} ")

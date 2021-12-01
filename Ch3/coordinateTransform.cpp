@@ -2,7 +2,7 @@
  * @Author: Divenire
  * @Date: 2021-09-04 13:00:59
  * @LastEditors: Divenire
- * @LastEditTime: 2021-09-22 17:10:13
+ * @LastEditTime: 2021-12-01 16:11:37
  * @Description: 小萝卜坐标转换程序
  */
 
@@ -34,7 +34,12 @@ int main()
 
 //    小萝卜二号在世界坐标系下的坐标。
     Vector3d p2 = t2w * t1w.inverse() * pos1;
-    cout<<p2<<endl;
+    std::cout << "====================================================" << std::endl;
+    std::cout << "\t\t\t\t转换后的坐标为" 
+    <<p2(0) <<" "
+    <<p2(1) <<" "
+    <<p2(2) <<" "
+    << std::endl;
 
     return 0;
 }

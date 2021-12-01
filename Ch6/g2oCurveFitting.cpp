@@ -2,7 +2,7 @@
  * @Author: Divenire
  * @Date: 2021-10-15 13:46:43
  * @LastEditors: Divenire
- * @LastEditTime: 2021-10-17 11:01:20
+ * @LastEditTime: 2021-12-01 13:34:20
  * @Description: 书上的g2o例程
  *                  曲线拟合在我的机器上耗时8.23ms
  */
@@ -42,9 +42,8 @@ public:
 
 
     // 存盘和读盘：留空
-    virtual bool read(istream &in) {}
-
-    virtual bool write(ostream &out) const { }
+    virtual bool read(istream &in);
+    virtual bool write(ostream &out);
 };
 
 // 误差模型 模板参数：观测值维度，类型，连接顶点类型

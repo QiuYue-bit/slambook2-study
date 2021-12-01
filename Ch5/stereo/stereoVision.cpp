@@ -2,7 +2,7 @@
  * @Author: Divenire
  * @Date: 2021-09-23 15:05:39
  * @LastEditors: Divenire
- * @LastEditTime: 2021-09-23 16:57:45
+ * @LastEditTime: 2021-12-01 17:13:16
  * @Description: file content
  */
 
@@ -22,8 +22,8 @@ using namespace Eigen;
  */
 
 // 文件路径
-string left_file = "../stereo/left.png";
-string right_file = "../stereo/right.png";
+string left_file = "../data/left.png";
+string right_file = "../data/right.png";
 
 
 // 在pangolin中画图，已写好，无需调整
