@@ -2,7 +2,7 @@
  * @Author: Divenire
  * @Date: 2021-10-16 13:44:47
  * @LastEditors: Divenire
- * @LastEditTime: 2021-10-16 15:35:09
+ * @LastEditTime: 2021-12-02 15:08:19
  * @Description: Ceres使用计算雅克比的方式拟合曲线
  *               在我的机器上I7-8750h 耗时0.26ms
  *               对比可以基本看出来解析法是最快的，比自动微分快了20倍
@@ -82,6 +82,7 @@ int main()
         // 使用自动求导，模板参数：误差类型，输出维度，输入维度，维数要与前面struct中一致
         ceres::CostFunction *cost_function =
             new QuadraticCostFunction(x_data[i], y_data[i]);  
+            
         problem.AddResidualBlock(
             cost_function,
             nullptr,
