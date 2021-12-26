@@ -1,8 +1,8 @@
 /*
  * @Author: Divenire
  * @Date: 2021-10-18 10:47:15
- * @LastEditors: Please set LastEditors
- * @LastEditTime: 2021-10-19 10:14:29
+ * @LastEditors: Divenire
+ * @LastEditTime: 2021-12-02 15:13:27
  * @Description: 根据已有的两张图，寻找对应的特征点以及匹配关系
  *               根据匹配关系，寻找R,t
  *               根据对极约束得到的R,t，三角化计算特征点的深度()
@@ -50,8 +50,8 @@ inline cv::Scalar get_color(float depth)
 Point2f pixel2cam(const Point2d &p, const Mat &K);
 
 // global variables
-string first_file = "../1.png";
-string second_file = "../2.png";
+string first_file = "../data/1.png";
+string second_file = "../data/2.png";
 
 int main(int argc, char **argv)
 {
@@ -75,6 +75,7 @@ int main(int argc, char **argv)
 
   //-- 验证三角化点与特征点的重投影关系
   Mat K = (Mat_<double>(3, 3) << 520.9, 0, 325.1, 0, 521.0, 249.7, 0, 0, 1);
+
   Mat img1_plot = img_1.clone();
   Mat img2_plot = img_2.clone();
 
@@ -84,7 +85,7 @@ int main(int argc, char **argv)
     float depth1 = points[i].z;
     cout << "depth: " << depth1 << endl;
     Point2d pt1_cam = pixel2cam(keypoints_1[matches[i].queryIdx].pt, K);
-    cv::circle(img1_plot, keypoints_1[matches[i].queryIdx].pt, 2, get_color(depth1), 2);
+    cv::circle(img1_plot, keypoints_1[matches[i].queryIdx].pt,2,255);
 
     // 第二个图
     Mat pt2_trans = R * (Mat_<double>(3, 1) << points[i].x, points[i].y, points[i].z) + t;
@@ -106,13 +107,12 @@ void find_feature_matches(const Mat &img_1, const Mat &img_2,
 {
   //-- 初始化
   Mat descriptors_1, descriptors_2;
+  
   // used in OpenCV3
   Ptr<FeatureDetector> detector = ORB::create();
   Ptr<DescriptorExtractor> descriptor = ORB::create();
-  // use this if you are in OpenCV2
-  // Ptr<FeatureDetector> detector = FeatureDetector::create ( "ORB" );
-  // Ptr<DescriptorExtractor> descriptor = DescriptorExtractor::create ( "ORB" );
   Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create("BruteForce-Hamming");
+
   //-- 第一步:检测 Oriented FAST 角点位置
   detector->detect(img_1, keypoints_1);
   detector->detect(img_2, keypoints_2);

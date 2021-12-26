@@ -11,15 +11,22 @@ ENDIF()
 
 MESSAGE("Build type: " ${CMAKE_BUILD_TYPE})
 ############################################################
-#  C/C++ Flags
+#  C/C++ Flags -march=native -march=native
 ############################################################
+# 开启SSE指令集 、开启所有警告、本地优化
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4  -Wall  -march=native")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse4  -Wall  -march=native")
+
+message(${CMAKE_CXX_FLAGS})
+
+
 # -O3 编译等级优化为3上 开启了这个就不能用debug,会丢失信息了
 # -Wall 开启所有警告
 # -march=native, which automatically detects the features your CPU supports and sets the options appropriately.
 if(CMAKE_BUILD_TYPE MATCHES Release)
    MESSAGE("开启编译器优化")
-   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall  -O3 -march=native ")
-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall   -O3 -march=native")
+   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 ")
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 endif()
 ########################################s####################
 # Check C++14
@@ -95,8 +102,8 @@ if (OPENGL_FOUND AND G2O_USE_OPENGL)
 endif()
 
 # OPENCV
+set(OpenCV_DIR /home/divenire/Divenire_ws/libstore/OPENCV/opencv-3.2.0/build)
 find_package(OpenCV REQUIRED)
-
 
 # Pangolin
 find_package(Pangolin REQUIRED)
@@ -110,12 +117,14 @@ include_directories(${Sophus_INCLUDE_DIRS})
 ############################################################
 # 加入子文件夹
 ############################################################
-add_subdirectory(Ch2)
-add_subdirectory(Ch3)
-add_subdirectory(Ch4)
-add_subdirectory(Ch5)
-add_subdirectory(Ch6)
-# add_subdirectory(Ch7)
+#add_subdirectory(Ch2)
+#add_subdirectory(Ch3)
+#add_subdirectory(Ch4)
+#add_subdirectory(Ch5)
+#add_subdirectory(Ch6)
+
+#TODO
+ add_subdirectory(Ch7)
 # add_subdirectory(Ch8)
 # add_subdirectory(Ch9)
 # add_subdirectory(Ch10)

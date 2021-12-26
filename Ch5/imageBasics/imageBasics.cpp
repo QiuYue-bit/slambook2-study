@@ -2,7 +2,7 @@
  * @Author: Divenire
  * @Date: 2021-09-23 15:05:38
  * @LastEditors: Divenire
- * @LastEditTime: 2021-12-01 21:34:14
+ * @LastEditTime: 2021-12-25 09:06:04
  * @Description: 
  *  OPENCV的基本操作
  *  1.图像的读取，显示
@@ -17,8 +17,8 @@
 #include <iostream>
 #include <chrono>
 
-#include "opencv2/core/core.hpp"
-#include "opencv2/highgui/highgui.hpp"
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 using namespace std;
 using namespace cv;

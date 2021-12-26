@@ -7,7 +7,7 @@
  *               这是一个典型的Bundle Adjustment，我们用g2o进行优化。
  *              参考 https://github.com/gaoxiang12/g2o_ba_example
  *                  https://www.cnblogs.com/gaoxiang12/p/5304272.html
- *                  // TODO 看不太懂这个程序，后续阅读了g2o再回来看吧- -
+ *
  */
 
 
@@ -44,8 +44,8 @@ double fx = 518.0;
 double fy = 519.0;
 
 
-string img1_path = "../1.png";
-string img2_path = "../2.png";
+string img1_path = "../data/1.png";
+string img2_path = "../data/2.png";
 
 int main( int argc, char** argv )
 {
@@ -60,7 +60,8 @@ int main( int argc, char** argv )
     {
         cout<<"匹配点不够！"<<endl;
         return 0;
-    }
+    }else
+
     cout<<"找到了"<<pts1.size()<<"组对应特征点。"<<endl;
 
     // 构造g2o中的图
@@ -98,16 +99,21 @@ int main( int argc, char** argv )
     {
         g2o::VertexSBAPointXYZ* v = new g2o::VertexSBAPointXYZ();
         v->setId( 2 + i );
+
+        // mark as landmark
+        v->setMarginalized(true);
+
+        // mappoint initial value
         // 由于深度不知道，只能把深度设置为1了
         double z = 1;
         double x = ( pts1[i].x - cx ) * z / fx; 
         double y = ( pts1[i].y - cy ) * z / fy; 
-        v->setMarginalized(true);
+
         v->setEstimate( Eigen::Vector3d(x,y,z) );
         optimizer.addVertex( v );
     }
     
-    // 准备相机参数
+    // 计算edge误差的时候，需要用到相机参数，现在这儿定义了
     g2o::CameraParameters* camera = new g2o::CameraParameters( fx, Eigen::Vector2d(cx, cy), 0 );
     camera->setId(0);
     optimizer.addParameter( camera );
@@ -118,11 +124,18 @@ int main( int argc, char** argv )
     for ( size_t i=0; i<pts1.size(); i++ )
     {
         g2o::EdgeProjectXYZ2UV*  edge = new g2o::EdgeProjectXYZ2UV();
+        // i:
+        // type
+        // vertex id
         edge->setVertex( 0, dynamic_cast<g2o::VertexSBAPointXYZ*>   (optimizer.vertex(i+2)) );
         edge->setVertex( 1, dynamic_cast<g2o::VertexSE3Expmap*>     (optimizer.vertex(0)) );
+
         edge->setMeasurement( Eigen::Vector2d(pts1[i].x, pts1[i].y ) );
+
         edge->setInformation( Eigen::Matrix2d::Identity() );
+
         edge->setParameterId(0, 0);
+
         // 核函数
         edge->setRobustKernel( new g2o::RobustKernelHuber() );
         optimizer.addEdge( edge );
@@ -230,6 +243,10 @@ int  findCorrespondingPoints( const cv::Mat& img1, const cv::Mat& img2, vector<c
         points1.push_back( kp1[m.queryIdx].pt );
         points2.push_back( kp2[m.trainIdx].pt );
     }
-    
+
+    cv::Mat outImg;
+    cv::drawMatches(img1,kp1,img2,kp2,matches,outImg,Scalar(255, 255, 255),Scalar(0, 0, 255));
+    cv::imshow("matches",outImg);
+    cv::waitKey();
     return true;
 }

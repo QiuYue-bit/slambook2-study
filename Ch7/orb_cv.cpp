@@ -2,7 +2,7 @@
  * @Author: Divenire
  * @Date: 2021-10-18 10:46:49
  * @LastEditors: Divenire
- * @LastEditTime: 2021-10-18 13:55:44
+ * @LastEditTime: 2021-12-02 16:06:51
  * @Description: 
  *              extract ORB cost = 0.0228373 seconds. 
                 match ORB cost = 0.000716646 seconds. 
@@ -19,8 +19,8 @@
 using namespace std;
 using namespace cv;
 
-string img1_path = "../1.png";
-string img2_path = "../2.png";
+string img1_path = "../data/1.png";
+string img2_path = "../data/2.png";
 
 
 int main(int argc, char **argv) {
@@ -28,20 +28,21 @@ int main(int argc, char **argv) {
   //-- 读取图像
   Mat img_1 = imread(img1_path);
   Mat img_2 = imread(img2_path);
+  
   assert(img_1.data != nullptr && img_2.data != nullptr);
 
   //-- 初始化
   std::vector<KeyPoint> keypoints_1, keypoints_2;
   Mat descriptors_1, descriptors_2;
-  Ptr<FeatureDetector> detector = ORB::create(); //ORB检测器
+  Ptr<FeatureDetector> detector_orb = ORB::create(); //ORB检测器
   Ptr<DescriptorExtractor> descriptor = ORB::create(); //ORB描述子
 
   // 计时开始
   chrono::steady_clock::time_point t1 = chrono::steady_clock::now();
 
   //-- 第一步:检测 Oriented FAST 角点位置
-  detector->detect(img_1, keypoints_1);
-  detector->detect(img_2, keypoints_2);
+  detector_orb->detect(img_1, keypoints_1);
+  detector_orb->detect(img_2, keypoints_2);
 
   //-- 第二步:根据角点位置计算 BRIEF 描述子并存储在对应的容器中
   descriptor->compute(img_1, keypoints_1, descriptors_1);
@@ -51,6 +52,9 @@ int main(int argc, char **argv) {
   chrono::steady_clock::time_point t2 = chrono::steady_clock::now();
   chrono::duration<double> time_used = chrono::duration_cast<chrono::duration<double>>(t2 - t1);
   cout << "extract ORB cost = " << time_used.count() << " seconds. " << endl;
+  
+  
+  
 
   Mat outimg1;
   drawKeypoints(img_1, keypoints_1, outimg1, Scalar::all(-1), DrawMatchesFlags::DEFAULT);

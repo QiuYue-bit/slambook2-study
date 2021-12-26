@@ -12,6 +12,9 @@ SET(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 add_executable(orb_cv orb_cv.cpp)
 target_link_libraries(orb_cv ${OpenCV_LIBS})
 
+add_executable(feature_detector feature_detector.cpp)
+target_link_libraries(feature_detector ${OpenCV_LIBS})
+
 add_executable(orb_self orb_self.cpp)
 target_link_libraries(orb_self ${OpenCV_LIBS})
 

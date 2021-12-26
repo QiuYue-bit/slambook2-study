@@ -3,26 +3,17 @@
  * @Date: 2021-10-15 13:46:43
  * @LastEditors: Divenire
  * @LastEditTime: 2021-12-02 14:20:56
- * @Description: 
- *              LM算法：
- *              solve time cost = 6.989 ms. 
-                true model: a:1 b:2     c:1
-                estimated model: a:0.890912     b:2.1719        c:0.943629
- *              GN算法：
-                solve time cost = 6.7471 ms. 
-                true model: a:1 b:2     c:1
-                estimated model: a:0.890912     b:2.1719        c:0.943629
- *              Dog-leg算法：
-                solve time cost = 9.59631 ms. 
-                true model: a:1 b:2     c:1
-                estimated model: a:0.890912     b:2.1719        c:0.943629
+ * @Description:
+                曲线拟合问题。
+                用不同的迭代算法和核函数对结果进行测试。
  */
 
 #include <iostream>
-#include "types.h"
 #include <opencv2/core/core.hpp>
 #include <cmath>
 #include <chrono>
+
+#include "types.h"
 
 using namespace std;
 using namespace g2o;
@@ -86,7 +77,7 @@ int main(int argc, char **argv)
     typedef g2o::LinearSolverDense<BlockSolverType::PoseMatrixType> LinearSolverType;
 
     // 优化方法选择高斯牛顿法
-    auto solver = new g2o::OptimizationAlgorithmDogleg(
+    auto solver = new g2o::OptimizationAlgorithmLevenberg(
         g2o::make_unique<BlockSolverType>(g2o::make_unique<LinearSolverType>()));
 
     // 图模型参数设置
@@ -122,6 +113,10 @@ int main(int argc, char **argv)
            
         // 设置信息矩阵:协方差的逆                                           
         edge->setInformation(Eigen::Matrix<double, 1, 1>::Identity() * 1 / (w_sigma * w_sigma)); 
+
+        //robust fuction
+        g2o::RobustKernelHuber* rk = new g2o::RobustKernelHuber;
+        edge->setRobustKernel(rk);
 
         optimizer.addEdge(edge);
     }

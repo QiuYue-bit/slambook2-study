@@ -110,10 +110,10 @@ protected:
   Eigen::Vector3d _point;
 };
 
-string img1_path = "../1.png";
-string img2_path = "../2.png";
-string depth1_path = "../1_depth.png";
-string depth2_path = "../2_depth.png";
+string img1_path = "../data/1.png";
+string img2_path = "../data/2.png";
+string depth1_path = "../data/1_depth.png";
+string depth2_path = "../data/2_depth.png";
 
 int main(int argc, char **argv)
 {
@@ -164,7 +164,14 @@ int main(int argc, char **argv)
   Mat R, t;
 
   // SVD方法求解ICP问题
+  chrono::steady_clock::time_point t1 = chrono::steady_clock::now();
+
   pose_estimation_3d3d(pts1, pts2, R, t);
+    chrono::steady_clock::time_point t2 = chrono::steady_clock::now();
+    chrono::duration<double> time_used = chrono::duration_cast<chrono::duration<double>>(t2 - t1);
+    cout << "pose_estimation_3d3d costs time: " << time_used.count() << " seconds." << endl;
+
+
   cout << "================================ICP via SVD results: " << endl;
   cout << "R = " << R << endl;
   cout << "t = " << t << endl;
@@ -173,7 +180,11 @@ int main(int argc, char **argv)
 
   cout << "================================calling bundle adjustment" << endl;
   // BA求解3D点对匹配问题
+    t1 = chrono::steady_clock::now();
   bundleAdjustment(pts1, pts2, R, t);
+    t2 = chrono::steady_clock::now();
+    time_used = chrono::duration_cast<chrono::duration<double>>(t2 - t1);
+    cout << "bundleAdjustment costs time: " << time_used.count() << " seconds." << endl;
 
   // verify p1 = R * p2 + t
   // 采取5个点验证求取的R，t是否正确
@@ -337,16 +348,14 @@ void bundleAdjustment(
         pts1[i].x, pts1[i].y, pts1[i].z));
     // 设置信息矩阵
     edge->setInformation(Eigen::Matrix3d::Identity());
+
     optimizer.addEdge(edge);
   }
 
-  chrono::steady_clock::time_point t1 = chrono::steady_clock::now();
   optimizer.initializeOptimization();
   // 最大迭代次数设置为10
   optimizer.optimize(10);
-  chrono::steady_clock::time_point t2 = chrono::steady_clock::now();
-  chrono::duration<double> time_used = chrono::duration_cast<chrono::duration<double>>(t2 - t1);
-  cout << "optimization costs time: " << time_used.count() << " seconds." << endl;
+
 
   cout << endl
        << "after optimization:" << endl;

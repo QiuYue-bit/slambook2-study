@@ -1,3 +1,4 @@
 cmake -H. -Bbuild
-cmake --build build 
-sudo cmake --install build
+cmake --build build
+cd build
+sudo make install

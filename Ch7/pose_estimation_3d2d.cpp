@@ -51,10 +51,10 @@ void bundleAdjustmentGaussNewton(
     const Mat &K,
     Sophus::SE3d &pose);
 
-string img1_path = "../1.png";
-string img2_path = "../2.png";
-string depth1_path = "../1_depth.png";
-string depth2_path = "../2_depth.png";
+string img1_path = "../data/1.png";
+string img2_path = "../data/2.png";
+string depth1_path = "../data/1_depth.png";
+string depth2_path = "../data/2_depth.png";
 
 int main(int argc, char **argv)
 {
@@ -79,6 +79,7 @@ int main(int argc, char **argv)
   // 匹配好的3D-2D点对
   vector<Point3f> pts_3d;
   vector<Point2f> pts_2d;
+
   for (DMatch m : matches)
   {
     //提取第一张图像的匹配点对的深度
