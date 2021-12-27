@@ -107,7 +107,7 @@ int main(int argc, char **argv)
 
   chrono::steady_clock::time_point t1 = chrono::steady_clock::now();
   // 调用OpenCV 的 PnP 求解，可选择EPNP，DLS等方法
-  solvePnP(pts_3d, pts_2d, K, Mat(), r, t, false); 
+  solvePnP(pts_3d, pts_2d, K, Mat(), r, t, false);
   // r为旋转向量形式，用Rodrigues公式转换为旋转矩阵形式
   cv::Rodrigues(r, R);
   chrono::steady_clock::time_point t2 = chrono::steady_clock::now();
@@ -344,7 +344,7 @@ public:
   {
     const VertexPose *v = static_cast<VertexPose *>(_vertices[0]);
     Sophus::SE3d T = v->estimate();
-    
+
     // 转换到像素坐标下
     Eigen::Vector3d pos_pixel = _K * (T * _pos3d);
     pos_pixel /= pos_pixel[2];
@@ -366,6 +366,7 @@ public:
     double Y = pos_cam[1];
     double Z = pos_cam[2];
     double Z2 = Z * Z;
+
     _jacobianOplusXi
         << -fx / Z,
         0, fx * X / Z2, fx * X * Y / Z2, -fx - fx * X * X / Z2, fx * Y / Z,
@@ -381,6 +382,8 @@ private:
   Eigen::Matrix3d _K;
 };
 
+
+
 void bundleAdjustmentG2O(
     const VecVector3d &points_3d,
     const VecVector2d &points_2d,
@@ -391,7 +394,7 @@ void bundleAdjustmentG2O(
   // 构建图优化，先设定g2o
   typedef g2o::BlockSolver<g2o::BlockSolverTraits<6, 3>> BlockSolverType;           // pose is 6, landmark is 3
   typedef g2o::LinearSolverDense<BlockSolverType::PoseMatrixType> LinearSolverType; // 线性求解器类型
-  
+
   // 梯度下降方法，可以从GN, LM, DogLeg 中选
   auto solver = new g2o::OptimizationAlgorithmGaussNewton(
       g2o::make_unique<BlockSolverType>(g2o::make_unique<LinearSolverType>()));

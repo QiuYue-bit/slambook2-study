@@ -123,9 +123,10 @@ include_directories(${Sophus_INCLUDE_DIRS})
 #add_subdirectory(Ch5)
 #add_subdirectory(Ch6)
 
-#TODO
+
  add_subdirectory(Ch7)
 # add_subdirectory(Ch8)
+#TODO
 # add_subdirectory(Ch9)
 # add_subdirectory(Ch10)
 

@@ -36,3 +36,13 @@ target_link_libraries(g2o_ba_example
                 ${OpenCV_LIBS}  
                 ${CHOLMOD_LIBRARIES}
 )
+
+add_executable(hw_06 hw_06/hw_06.cpp)
+target_link_libraries(hw_06  ${OpenCV_LIBS}
+        g2o_core g2o_types_slam3d g2o_solver_csparse g2o_stuff g2o_csparse_extension g2o_types_sba
+        Sophus::Sophus)
+
+add_executable(hw_07 hw_07/hw_07.cpp)
+target_link_libraries(hw_07  ${OpenCV_LIBS}
+        g2o_core g2o_types_slam3d g2o_solver_csparse g2o_stuff g2o_csparse_extension g2o_types_sba
+        Sophus::Sophus)
