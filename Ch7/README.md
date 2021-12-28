@@ -4,7 +4,7 @@
 - orb_cv.cpp
 
 
-    - 调用Opencv自带的ORB特征检测器，对图片进行特征提取后，使用Hamming距离进行暴力匹配。
+- 调用Opencv自带的ORB特征检测器，对图片进行特征提取后，使用Hamming距离进行暴力匹配。
 
 
     - ![image-20211225195452566](https://tuchuang-1998.oss-accelerate.aliyuncs.com/Picgo/image-20211225195452566.png)

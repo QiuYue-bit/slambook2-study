@@ -56,6 +56,8 @@ string img2_path = "../data/2.png";
 string depth1_path = "../data/1_depth.png";
 string depth2_path = "../data/2_depth.png";
 
+Mat R , r, t;
+
 int main(int argc, char **argv)
 {
   //-- 读取图像
@@ -103,7 +105,6 @@ int main(int argc, char **argv)
 
   // ******************** OPENCV求解PNP问题 **************************
   cout << "calling OPENCV to solve pnp" << endl;
-  Mat R , r, t;
 
   chrono::steady_clock::time_point t1 = chrono::steady_clock::now();
   // 调用OpenCV 的 PnP 求解，可选择EPNP，DLS等方法
@@ -405,8 +406,24 @@ void bundleAdjustmentG2O(
   // 往图中添加顶点，因为只有一个待优化变量T，只有一个顶点
   VertexPose *vertex_pose = new VertexPose(); // camera vertex_pose
   vertex_pose->setId(0);
+
   // 设置初始值为I
-  vertex_pose->setEstimate(Sophus::SE3d());
+  Eigen::Matrix3d Rotation ;
+  Eigen::Vector3d translation;
+  for(int i=0;i<3;++i)
+  {
+      for(int j=0;j<3;++j)
+      {
+          Rotation(i,j)=R.at<double>(i,j);
+      }
+      translation(i)=R.at<double>(3,i);
+  }
+//  cout<<R.at<double>(0,1);
+    cout<<"init T";
+    Sophus::SE3d T(Rotation,translation);
+    cout<<T.rotationMatrix()<<endl;
+  vertex_pose->setEstimate(T);
+
   optimizer.addVertex(vertex_pose);
 
   // 相机内参矩阵
