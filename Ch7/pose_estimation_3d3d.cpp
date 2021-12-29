@@ -13,15 +13,11 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/features2d/features2d.hpp>
 #include <opencv2/highgui/highgui.hpp>
-#include <opencv2/calib3d/calib3d.hpp>
 #include <Eigen/Core>
-#include <Eigen/Dense>
-#include <Eigen/Geometry>
 #include <Eigen/SVD>
 #include <g2o/core/base_vertex.h>
 #include <g2o/core/base_unary_edge.h>
 #include <g2o/core/block_solver.h>
-#include <g2o/core/optimization_algorithm_gauss_newton.h>
 #include <g2o/core/optimization_algorithm_levenberg.h>
 #include <g2o/solvers/dense/linear_solver_dense.h>
 #include <chrono>
@@ -48,8 +44,8 @@ void pose_estimation_3d3d(
 
 // BA
 void bundleAdjustment(
-    const vector<Point3f> &points_3d,
-    const vector<Point3f> &points_2d,
+    const vector<Point3f> &pts1,
+    const vector<Point3f> &pts2,
     Mat &R, Mat &t);
 
 /// vertex and edges used in g2o ba
@@ -59,13 +55,13 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
   // 原点
-  virtual void setToOriginImpl() override
+  void setToOriginImpl() override
   {
     _estimate = Sophus::SE3d();
   }
 
   /// 定义SE上的加法
-  virtual void oplusImpl(const double *update) override
+  void oplusImpl(const double *update) override
   {
     Eigen::Matrix<double, 6, 1> update_eigen;
     update_eigen << update[0], update[1], update[2], update[3], update[4], update[5];
@@ -95,7 +91,7 @@ public:
   // 误差雅可比矩阵
   virtual void linearizeOplus() override
   {
-    VertexPose *pose = static_cast<VertexPose *>(_vertices[0]);
+    auto *pose = dynamic_cast<VertexPose *>(_vertices[0]);
     Sophus::SE3d T = pose->estimate();
     Eigen::Vector3d xyz_trans = T * _point;
     _jacobianOplusXi.block<3, 3>(0, 0) = -Eigen::Matrix3d::Identity();
@@ -188,13 +184,24 @@ int main(int argc, char **argv)
 
   // verify p1 = R * p2 + t
   // 采取5个点验证求取的R，t是否正确
-  for (int i = 0; i < 5; i++)
+    Eigen::Matrix3d Rotation ;
+    Eigen::Vector3d translation;
+    for(int i=0;i<3;++i)
+    {
+        for(int j=0;j<3;++j)
+        {
+            Rotation(i,j)=R.at<double>(i,j);
+        }
+        translation(i)=t.at<double>(0,i);
+    }
+    Sophus::SE3d T(Rotation,translation);
+  for (int i = 0; i < pts1.size(); i++)
   {
-    cout << "p1 = " << pts1[i] << endl;
-    cout << "p2 = " << pts2[i] << endl;
-    cout << "(R*p2+t) = " << R * (Mat_<double>(3, 1) << pts2[i].x, pts2[i].y, pts2[i].z) + t
-         << endl;
-    cout << endl;
+    Eigen::Vector3d p1(pts1[i].x,pts1[i].y,pts1[i].z);
+    Eigen::Vector3d p2(pts2[i].x,pts2[i].y,pts2[i].z);
+    cout<<"p1"<<p1<<endl;
+    cout<<"p2"<<p2<<endl;
+    cout<<"est p1"<<T*p1<<endl;
   }
 }
 

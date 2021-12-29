@@ -10,7 +10,6 @@
  *
  */
 
-
 // for std
 #include <iostream>
 // for opencv 

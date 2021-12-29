@@ -62,26 +62,32 @@ int main(int argc, char **argv)
     cout << "3d-3d pairs: " << pts1.size() << endl;
 
 
-    Eigen::Matrix3d R;
-    Eigen::Vector3d t;
+    Eigen::Matrix3d R_u;
+    Eigen::Vector3d t_u;
     cout << "================================calling bundle adjustment" << endl;
     // BA求解3D点对匹配问题
     auto t1 = chrono::steady_clock::now();
-    bundleAdjustment(pts1, pts2, R, t);
+    bundleAdjustment(pts1, pts2, R_u, t_u);
     auto t2 = chrono::steady_clock::now();
     auto time_used = chrono::duration_cast<chrono::duration<double>>(t2 - t1);
     cout << "bundleAdjustment costs time: " << time_used.count() << " seconds." << endl;
 
-    // verify p1 = R * p2 + t
+    // verify p2 = R * p1 + t
     // 采取5个点验证求取的R，t是否正确
-    for (int i = 0; i < 5; i++)
+    Sophus::SE3d T(R_u,t_u);
+    double error;
+    for (int i = 0; i < pts1.size(); i++)
     {
-        cout << "p1 = " << pts1[i] << endl;
-        cout << "p2 = " << pts2[i] << endl;
-        cout << "(R*p2+t) = " << R *pts2[i] + t
-             << endl;
-        cout << endl;
+        Eigen::Vector3d temp;
+        Eigen::Vector3d p1(pts1[i]);
+        Eigen::Vector3d p2(pts2[i]);
+        // world p project to current p T*p1
+        //
+        temp= T*p1 - p2;
+//        cout<<"temp"<<temp<<endl;
+        error += temp.dot(temp);
     }
+    cout<<"full ba error"<<error;
 }
 
 
@@ -89,7 +95,7 @@ int main(int argc, char **argv)
 // ************************ Bundle Adjustment优化 ************************
 
 void bundleAdjustment(
-        const vector<Eigen::Vector3d> &pts1,
+        vector<Eigen::Vector3d> &pts1,
         const vector<Eigen::Vector3d> &pts2,
         Eigen::Matrix3d &R,
         Eigen::Vector3d &t)
@@ -104,28 +110,38 @@ void bundleAdjustment(
     optimizer.setAlgorithm(solver); // 设置求解器
     optimizer.setVerbose(true);     // 打开调试输出
 
+
     // 一个顶点，待优化的变量为姿态
     auto *pose = new VertexPose(); // camera pose
     pose->setId(0);
     pose->setEstimate(Sophus::SE3d());
     optimizer.addVertex(pose);
 
-
+    // 添加地图点
+    for (int i = 0;i<pts1.size();++i) {
+        auto *landmark = new VertexLandmark();
+        landmark->setId(i+1);
+        landmark->setMarginalized(true);
+        landmark->setEstimate(pts1[i]);
+        optimizer.addVertex(landmark);
+    }
 
     // 添加误差边
-    for (size_t i = 0; i < pts1.size(); i++)
+    vector<EdgeProjectXYZRGBDPoseAndPoint*> edges;
+    for (int i = 0;i<pts1.size();++i)
     {
-        // 用第二幅图象的点作为初始化
-        auto *edge = new EdgeProjectXYZRGBDPoseOnly(
-                pts2[i]);
+        auto *edge = new EdgeProjectXYZRGBDPoseAndPoint();
 
-        edge->setVertex(0, pose);
-        // 第一幅图像的点作为两侧
-        edge->setMeasurement(pts1[i]);
+        edge->setVertex(0, dynamic_cast<VertexPose*>(optimizer.vertex(0)));
+        edge->setVertex(1,dynamic_cast<VertexLandmark*>(optimizer.vertex(1+i)));
+        // 第二幅图像的点作为两侧
+        edge->setMeasurement(pts2[i]);
         // 设置信息矩阵
         edge->setInformation(Eigen::Matrix3d::Identity());
-
+        g2o::RobustKernelHuber* rk = new g2o::RobustKernelHuber;
+        edge->setRobustKernel(rk);
         optimizer.addEdge(edge);
+        edges.push_back(edge);
     }
 
     optimizer.initializeOptimization();
@@ -141,6 +157,19 @@ void bundleAdjustment(
     // convert to cv::Mat
     R = pose->estimate().rotationMatrix();
     t = pose->estimate().translation();
+
+    for (int i = 0; i < pts1.size(); ++i)
+    {
+        pts1[i] = dynamic_cast<VertexLandmark*>(optimizer.vertex(1+i))->estimate();
+    }
+
+//    for ( auto e:edges )
+//    {
+//        e->computeError();
+//        cout<<"e->error"<<e->error();
+//        cout<<"error = "<<e->chi2()<<endl;
+//    }
+
 }
 
 

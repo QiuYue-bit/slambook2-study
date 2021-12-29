@@ -116,7 +116,9 @@ int main(int argc, char **argv)
 
     cout << "solve pnp by selfg2o cost time: " << time_used.count() << " seconds." << endl;
 
-    //
+    // ****************  *********************
+
+
 
     return 0;
 }
@@ -282,9 +284,11 @@ void bundleAdjustmentG2O(
     for (unsigned int i = 0; i < points2_2d.size(); ++i)
     {
         auto edge = new g2o::EdgeProjectXYZ2UV();
+
         // binary edge
         edge->setVertex(0, dynamic_cast<g2o::VertexSBAPointXYZ *>(optimizer.vertex(2 + i))); //landmark in frame 1
         edge->setVertex(1, dynamic_cast<g2o::VertexSE3Expmap *>(optimizer.vertex(1)));       // frame 1
+
         edge->setMeasurement(Eigen::Vector2d(points2_2d[i].x, points2_2d[i].y));
         edge->setParameterId(0, 0);
         edge->setInformation(Eigen::Matrix2d::Identity());
@@ -292,7 +296,6 @@ void bundleAdjustmentG2O(
     }
 
     chrono::steady_clock::time_point t1 = chrono::steady_clock::now();
-
     // 打开调试输出
     optimizer.setVerbose(true);
     // 初始化优化
@@ -357,6 +360,7 @@ void find_feature_matches(const Mat &img_1, const Mat &img_2,
             matches.push_back(match[i]);
         }
     }
+
 }
 
 // **********************  像素坐标转换到归一化平面上 **********************
