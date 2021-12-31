@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
     //-- 初始化
     std::vector<KeyPoint> keypoints_orb,keypoints_sift,keypoints_surf,keypoints_kaze;
     Ptr<FeatureDetector> detector_orb = ORB::create(1933);
-    Ptr<FeatureDetector> detector_sift= xfeatures2d::SIFT::create(1933);
+    Ptr<FeatureDetector> detector_sift= SIFT::create(1933);
     Ptr<FeatureDetector> detector_surf= xfeatures2d::SURF::create();
     Ptr<FeatureDetector> detector_kaze= KAZE::create();
     //-- Orb特征点

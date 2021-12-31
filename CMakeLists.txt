@@ -102,7 +102,7 @@ if (OPENGL_FOUND AND G2O_USE_OPENGL)
 endif()
 
 # OPENCV
-set(OpenCV_DIR /home/divenire/Divenire_ws/libstore/OPENCV/opencv-3.2.0/build)
+set(OpenCV_DIR /home/divenire/Divenire_ws/libstore/OPENCV/opencv_3_4_16/opencv-3.4.16/build)
 find_package(OpenCV REQUIRED)
 
 # Pangolin
@@ -124,9 +124,12 @@ include_directories(${Sophus_INCLUDE_DIRS})
 #add_subdirectory(Ch6)
 
 
- add_subdirectory(Ch7)
-# add_subdirectory(Ch8)
+# add_subdirectory(Ch7)
+ add_subdirectory(Ch8)
+
 #TODO 2021.12.28
 # add_subdirectory(Ch9)
+
+#TODO 2021.12.29
 # add_subdirectory(Ch10)
 
