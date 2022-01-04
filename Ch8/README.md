@@ -50,9 +50,43 @@
 
   ![image-20211229212254301](https://tuchuang-1998.oss-accelerate.aliyuncs.com/Picgo/image-20211229212254301.png)
 
+
+
 ### 课后习题
 
+#### g2o_稀疏半直接法
 
+- 默认参数提取FAST角点，Loop 8, 可以看到许多关键点的匹配关系相差了许多。得到的Tcw误差较大。
+
+  ![image-20220104131529584](https://tuchuang-1998.oss-accelerate.aliyuncs.com/Picgo/image-20220104131529584.png)
+
+- FAST角点提取阈值设置为`5`，角点的数量增加，明显看出，误差较默认参数更小。
+
+![image-20220104131823634](https://tuchuang-1998.oss-accelerate.aliyuncs.com/Picgo/image-20220104131823634.png)
+
+-  FAST角点提取阈值设置为5，引入默认参数的鲁棒核函数但是效果更差了。。 看来核函数不能乱用，要合理设置参数，否则会把应该调整的内点设置成外点，反而降低了性能。
+
+  ![image-20220104133539061](https://tuchuang-1998.oss-accelerate.aliyuncs.com/Picgo/image-20220104133539061.png)
+
+- FAST角点的提取阈值设置为`20`。角点的数量较少，明显看出，误差较默认参数增大了不少。
+
+![image-20220104132058646](https://tuchuang-1998.oss-accelerate.aliyuncs.com/Picgo/image-20220104132058646.png)	
+
+#### g2o_半稠密直接法
+
+对每一个像素求取梯度，对梯度大于50的点计算雅克比。可以看出大部分像素的对应关系都是基本吻合的。
+
+![image-20220104112250465](https://tuchuang-1998.oss-accelerate.aliyuncs.com/Picgo/image-20220104112250465.png)
+
+
+
+#### Ceres_稀疏半直接法【Check】
+
+有空再看Ceres。
+
+#### Ceres_半稠密直接法【Check】
+
+有空再看Ceres。
 
 ## 参考资料
 

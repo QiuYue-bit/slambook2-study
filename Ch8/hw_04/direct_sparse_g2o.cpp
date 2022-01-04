@@ -47,7 +47,7 @@ int main ( int argc, char** argv )
         if(index == 0)
         {
             vector<cv::KeyPoint> keypoints;
-            cv::Ptr<cv::FastFeatureDetector> detector = cv::FastFeatureDetector::create();
+            cv::Ptr<cv::FastFeatureDetector> detector = cv::FastFeatureDetector::create(5);//5
             detector->detect ( color, keypoints );
 
             for ( auto kp:keypoints )
@@ -110,7 +110,8 @@ bool poseEstimationDirect ( const vector< Measurement >& measurements,  cv::Mat*
 
     /// 添加节点
     auto pose = new VertexSE3();
-    pose->setEstimate(Sophus::SE3d());
+//    pose->setEstimate(Sophus::SE3d());
+    pose->setEstimate(Tcw);
     pose->setId(0);
     optimizer.addVertex(pose);
 
@@ -125,8 +126,11 @@ bool poseEstimationDirect ( const vector< Measurement >& measurements,  cv::Mat*
         edge->setVertex(0,pose);
         edge->setInformation(Eigen::Matrix<double,1,1>::Identity());
         edge->setMeasurement(measurement.Getgrayscale());
+        // 核函数
+//        edge->setRobustKernel( new g2o::RobustKernelHuber() );
         optimizer.addEdge(edge);
     }
+
     /// 构造矩阵并开始求解
     cout<<"edges in graph: "<<optimizer.edges().size() <<endl;
     optimizer.initializeOptimization();
