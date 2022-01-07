@@ -9,9 +9,15 @@
 using namespace cv;
 using namespace std;
 
-
+// input param
+// 这个associate.txt是啥意思？
 int main( int argc, char** argv )
 {
+    if(argc != 2)
+    {
+        cerr << "path does not exist." << endl;
+        return 0;
+    }
     string dataset_dir = argv[1];
     ifstream fin ( dataset_dir+"/associate.txt" );
     if ( !fin )

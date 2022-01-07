@@ -15,3 +15,4 @@ lastmod: '2021-12-01T05:55:57.186Z'
 - Sopuhs 1.1.0
 - OPENCV 3.4.16
 - Boost  1.77.0
+- pcl 1.8

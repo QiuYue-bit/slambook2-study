@@ -14,11 +14,10 @@ MESSAGE("Build type: " ${CMAKE_BUILD_TYPE})
 #  C/C++ Flags -march=native -march=native
 ############################################################
 # 开启SSE指令集 、开启所有警告、本地优化
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4  -Wall  -march=native")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse4  -Wall  -march=native")
-
+# 本地优化 -march=native 开了可能会有问题
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4  -Wall  ")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse4  -Wall ")
 message(${CMAKE_CXX_FLAGS})
-
 
 # -O3 编译等级优化为3上 开启了这个就不能用debug,会丢失信息了
 # -Wall 开启所有警告
@@ -40,7 +39,6 @@ set(CMAKE_CXX_STANDARD 14)
 # POLICY 参考g2o源码的Cmakelists
 ############################################################
 set(OpenGL_GL_PREFERENCE "GLVND")
-
 set (G2O_LIB_TYPE SHARED)
 ############################################################
 # Cmake Moudule Path
@@ -103,7 +101,7 @@ endif()
 
 # OPENCV
 set(OpenCV_DIR /home/divenire/Divenire_ws/libstore/OPENCV/opencv_3_4_16/opencv-3.4.16/build)
-find_package(OpenCV REQUIRED)
+find_package(OpenCV 3.4 REQUIRED)
 
 # Pangolin
 find_package(Pangolin REQUIRED)
@@ -113,7 +111,20 @@ include_directories( ${Pangolin_INCLUDE_DIRS} )
 find_package(Sophus REQUIRED)
 include_directories(${Sophus_INCLUDE_DIRS})
 
+# DBow3
+set( DBoW3_INCLUDE_DIRS "/usr/local/include" )
+set( DBoW3_LIBS "/usr/local/lib/libDBoW3.so" )
+include_directories(${DBoW3_INCLUDE_DIRS})
 
+# PCL
+#set(PCL_DIR "/home/divenire/Divenire_ws/libstore/PCL/pcl-pcl-1.10.1/build")
+find_package(PCL 1.8 REQUIRED)
+include_directories(${PCL_INCLUDE_DIRS})
+add_definitions(${PCL_DEFINITIONS})
+
+# octomap
+find_package(octomap REQUIRED)
+include_directories(${OCTOMAP_INCLUDE_DIRS})
 ############################################################
 # 加入子文件夹
 ############################################################
@@ -128,7 +139,10 @@ include_directories(${Sophus_INCLUDE_DIRS})
 # add_subdirectory(Ch8)
 
 #TODO 2021.12.28
- add_subdirectory(Ch9)
- add_subdirectory(Ch10)
+# add_subdirectory(Ch9)
+# add_subdirectory(Ch10)
 
+#add_subdirectory(Ch11)
+add_subdirectory(Ch12)
+#add_subdirectory(Ch13)
 

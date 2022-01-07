@@ -7,24 +7,24 @@ using namespace std;
 #include <opencv2/highgui/highgui.hpp>
 #include <Eigen/Geometry>
 #include <boost/format.hpp>  // for formating strings
-#include <pcl/point_types.h>
-#include <pcl/io/pcd_io.h>
-#include <pcl/filters/voxel_grid.h>
-#include <pcl/visualization/pcl_visualizer.h>
-#include <pcl/filters/statistical_outlier_removal.h>
+#include <pcl-1.8/pcl/point_types.h>
+#include <pcl-1.8/pcl/io/pcd_io.h>
+#include <pcl-1.8/pcl/filters/voxel_grid.h>
+#include <pcl-1.8/pcl/visualization/pcl_visualizer.h>
+#include <pcl-1.8/pcl/filters/statistical_outlier_removal.h>
 
 int main(int argc, char **argv) {
     vector<cv::Mat> colorImgs, depthImgs;    // 彩色图和深度图
     vector<Eigen::Isometry3d> poses;         // 相机位姿
 
-    ifstream fin("./data/pose.txt");
+    ifstream fin("../data/pose.txt");
     if (!fin) {
         cerr << "cannot find pose file" << endl;
         return 1;
     }
 
     for (int i = 0; i < 5; i++) {
-        boost::format fmt("./data/%s/%d.%s"); //图像文件格式
+        boost::format fmt("../data/%s/%d.%s"); //图像文件格式
         colorImgs.push_back(cv::imread((fmt % "color" % (i + 1) % "png").str()));
         depthImgs.push_back(cv::imread((fmt % "depth" % (i + 1) % "png").str(), -1)); // 使用-1读取原始图像
 

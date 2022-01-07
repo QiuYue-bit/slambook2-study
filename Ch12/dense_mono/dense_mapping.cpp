@@ -174,6 +174,8 @@ void evaludateDepth(const Mat &depth_truth, const Mat &depth_estimate);
 
 
 int main(int argc, char **argv) {
+
+    // ETHZ的数据集
     if (argc != 2) {
         cout << "Usage: dense_mapping path_to_test_dataset" << endl;
         return -1;
