@@ -5,7 +5,6 @@
 exe/
 
 ######          Clion     文件夹  #####
-.idea
 cmake-build-debug
 cmake-build-release
 
