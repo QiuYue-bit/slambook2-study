@@ -1,7 +1,7 @@
 #include <iostream>
 #include <ceres/ceres.h>
-#include "common.h"
-#include "SnavelyReprojectionError.h"
+#include "common/common.h"
+#include "common/SnavelyReprojectionError.h"
 
 using namespace std;
 

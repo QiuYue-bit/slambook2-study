@@ -6,7 +6,7 @@
 #include <g2o/core/robust_kernel_impl.h>
 #include <iostream>
 
-#include "common.h"
+#include "common/common.h"
 #include "sophus/se3.hpp"
 
 using namespace Sophus;
@@ -185,7 +185,7 @@ void SolveBA(BALProblem &bal_problem) {
     }
 
     optimizer.initializeOptimization();
-    optimizer.optimize(40);
+    optimizer.optimize(100);
 
     // set to bal problem
     for (int i = 0; i < bal_problem.num_cameras(); ++i) {

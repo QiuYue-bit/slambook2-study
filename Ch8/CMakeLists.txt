@@ -26,13 +26,3 @@ add_executable(direct_semidense_g2o hw_04/direct_semidense_g2o.cpp)
 target_link_libraries(direct_semidense_g2o  ${OpenCV_LIBS}
         g2o_core g2o_types_slam3d g2o_solver_csparse g2o_stuff g2o_csparse_extension g2o_types_sba
         Sophus::Sophus)
-
-add_executable(direct_semidense hw_04/direct_semidense.cpp)
-target_link_libraries(direct_semidense  ${OpenCV_LIBS}
-        g2o_core g2o_types_slam3d g2o_solver_csparse g2o_stuff g2o_csparse_extension g2o_types_sba
-        Sophus::Sophus)
-
-add_executable(direct_sparse hw_04/direct_sparse.cpp)
-target_link_libraries(direct_sparse  ${OpenCV_LIBS}
-        g2o_core g2o_types_slam3d g2o_solver_csparse g2o_stuff g2o_csparse_extension g2o_types_sba
-        Sophus::Sophus)
