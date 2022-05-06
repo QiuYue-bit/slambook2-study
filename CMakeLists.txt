@@ -139,10 +139,10 @@ include_directories(${OCTOMAP_INCLUDE_DIRS})
 # add_subdirectory(Ch8)
 
 #TODO 2021.12.28
-# add_subdirectory(Ch9)
-# add_subdirectory(Ch10)
+add_subdirectory(Ch9)
+add_subdirectory(Ch10)
 
 #add_subdirectory(Ch11)
-add_subdirectory(Ch12)
+#add_subdirectory(Ch12)
 #add_subdirectory(Ch13)
 
