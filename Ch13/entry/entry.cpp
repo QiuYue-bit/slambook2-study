@@ -16,6 +16,8 @@ int main(int argc, char **argv)
     FLAGS_log_dir = "../log/";
     google::InitGoogleLogging("log");
 
+    LOG(ERROR)<<"this is error msg";
+
     myslam::VisualOdometry::Ptr vo(
         new myslam::VisualOdometry(FLAGS_config_file));
 

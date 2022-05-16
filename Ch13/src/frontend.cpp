@@ -447,7 +447,7 @@ namespace myslam
         // 块求解器 6维pose 3维landmark
         typedef g2o::BlockSolver_6_3 BlockSolverType;
 
-        // 增量方程的求解方法 Dense cholesky分解法
+        // 增量方程Hx=b的求解方法 Dense cholesky分解法
         typedef g2o::LinearSolverDense<BlockSolverType::PoseMatrixType>
             LinearSolverType;
 
@@ -588,7 +588,10 @@ namespace myslam
                 feat->map_point_.reset(); //弱指针自带的操作函数reset，作用是将指针置空
                 // TODO 都外点了不直接删除？
                 // ? 搞得什么花里胡哨
-                // feat->is_outlier_ = false;
+                // ? 是不是在后面还能绑定到其他 的地图点
+                // 这个外点是什么?误匹配吗?
+                // 如果是误匹配为什么不直接删除?
+                feat->is_outlier_ = false;
             }
         }
         return features.size() - cnt_outlier; // inliers
