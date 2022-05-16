@@ -20,6 +20,7 @@ namespace myslam{
 
     void Viewer::AddCurrentFrame(Frame::Ptr current_frame) {
         std::unique_lock<std::mutex> lck(viewer_data_mutex_);
+		// 注意current_frame_ 这个是Viewer的私有成员函数
         current_frame_ = current_frame;
     }
 
@@ -39,8 +40,12 @@ namespace myslam{
 
     void Viewer::UpdateMap() {
         std::unique_lock<std::mutex> lck(viewer_data_mutex_);
-        assert(map_ != nullptr);//assert() 的用法像是一种"判断式编程"，在我的理解中，其表达的意思就是，
-        // 程序在我的假设条件下，能够正常良好的运作，其实就相当于一个 if 语句：
+		
+		// 再次断言判断一下这个Viewer中的map_有没有被初始化成功
+        assert(map_ != nullptr);
+		
+		// 把当前激活的地图点和路标点拿出来
+		// TODO 在哪被激活的？
         active_keyframes_ = map_->GetActiveKeyFrames();
         active_landmarks_ = map_->GetActiveMapPoints();
         map_updated_ = true;

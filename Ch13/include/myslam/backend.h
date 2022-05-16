@@ -1,3 +1,4 @@
+
 #ifndef MYSLAM_BACKEND_H
 #define MYSLAM_BACKEND_H
 
@@ -47,7 +48,9 @@ namespace myslam {
         std::thread backend_thread_;
         std::mutex data_mutex_;
 
+
         std::condition_variable map_update_;
+
         std::atomic<bool> backend_running_;
 
 

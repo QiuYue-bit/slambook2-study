@@ -39,21 +39,20 @@ namespace myslam{
             K << projection_data[0], projection_data[1], projection_data[2],
                     projection_data[4], projection_data[5], projection_data[6],
                     projection_data[8], projection_data[9], projection_data[10];
-					
+
             Vec3 t;
             t << projection_data[3], projection_data[7], projection_data[11];
 
-			// TODO 这个是为什么= =
-            t = K.inverse() * t;
-			
+            // OPENCV的矩阵是列优先的，实际上就是计算相机之间的平移参数(米制) baseline
             ///t = K.inverse() * t,参考https://blog.csdn.net/yangziluomu/article/details/78339575
+            t = K.inverse() * t;
+
+
+            //TODO 采用不缩放的图像进行实验，看看精度和匹配有没有影响
             K = K * 0.5;//因为前面你把读到的图像全部resize成了原来的一半，所以需要在内参矩阵上乘以0.5,将投影获得的像素坐标也变为原来的一半
-			
-			// 这边传入的t.norm是baseline
-			// TODO 验证一下
+
             Camera::Ptr new_camera(new Camera(K(0, 0), K(1, 1), K(0, 2), K(1, 2),
                                               t.norm(), SE3(SO3(), t)));
-			
             cameras_.push_back(new_camera);
             LOG(INFO) << "Camera " << i << " extrinsics: " << t.transpose();
 
@@ -110,6 +109,7 @@ namespace myslam{
           INTER_LANCZOS4 - 8x8像素邻域内的Lanczos插值
          */
 
+		// TODO 改成不缩放的
         cv::Mat image_left_resized, image_right_resized;
         cv::resize(image_left, image_left_resized, cv::Size(), 0.5, 0.5,
                    cv::INTER_NEAREST);

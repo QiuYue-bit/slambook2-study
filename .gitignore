@@ -3,6 +3,9 @@
 .vscode/
 # 可执行程序文件夹
 exe/
+.idea/
+log/
+bin/
 
 ######          Clion     文件夹  #####
 cmake-build-debug

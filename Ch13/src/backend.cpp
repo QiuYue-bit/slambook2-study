@@ -19,8 +19,7 @@ namespace myslam{
 
     void Backend::UpdateMap() {
         std::unique_lock<std::mutex> lock(data_mutex_);//没有defer_lock的话创建就会自动上锁了
-        //std::unique_lock:  https://murphypei.github.io/blog/2019/04/cpp-concurrent-2.html
-        //std::unique_lock:  https://cloud.tencent.com/developer/article/1583807
+        // TODO 这句话的作用？
         map_update_.notify_one(); //随机唤醒一个wait的线程
     }
 
