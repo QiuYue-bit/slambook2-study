@@ -42,6 +42,9 @@ namespace myslam
         // 好、坏、跟丢
         FrontendStatus GetFrontendStatus() const { return frontend_->GetStatus(); }
 
+        // 图片的缩放系数
+        static double img_resize_;
+
     private:
         bool inited_ = false;
         std::string config_file_path_;
@@ -51,6 +54,8 @@ namespace myslam
         Backend::Ptr backend_ = nullptr;
         Map::Ptr map_ = nullptr;
         Viewer::Ptr viewer_ = nullptr;
+
+
 
         // dataset
         Dataset::Ptr dataset_ = nullptr;

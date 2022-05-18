@@ -5,6 +5,9 @@
 namespace myslam
 {
 
+
+    double VisualOdometry::img_resize_ = 1.;
+
     VisualOdometry::VisualOdometry(std::string &config_path)
         : config_file_path_(config_path) {}
 
@@ -17,6 +20,9 @@ namespace myslam
 
             return false;
         }
+
+        img_resize_ = Config::Get<double>("img_resize");
+
 
         // Get也是类的静态成员变量，获取配置文件的数据集地址 string类型
         // 用于初始化类Dataset
