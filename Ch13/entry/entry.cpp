@@ -3,6 +3,7 @@
 #include <gflags/gflags.h>
 #include "myslam/visual_odometry.h"
 #include <glog/logging.h>
+#include "opencv2/opencv.hpp"
 
 // gflags库的使用说明参考： https://www.jianshu.com/p/2179938a818d
 //同上：https://blog.csdn.net/NMG_CJS/article/details/104436079?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromBaidu-3.control&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromBaidu-3.control
@@ -28,5 +29,6 @@ int main(int argc, char **argv)
 
     google::ShutdownGoogleLogging();
 
+    cv::waitKey(0); //停1ms
     return 0;
 }

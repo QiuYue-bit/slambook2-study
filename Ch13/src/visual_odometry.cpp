@@ -2,24 +2,32 @@
 #include <chrono>
 #include "myslam/config.h"
 
-namespace myslam{
+namespace myslam
+{
 
     VisualOdometry::VisualOdometry(std::string &config_path)
-            : config_file_path_(config_path) {}
+        : config_file_path_(config_path) {}
 
     bool VisualOdometry::Init()
     {
-        if (Config::SetParameterFile(config_file_path_) == false) {
-            //判断一下这个config_file_path_是否存在，同时将配置文件赋给Config类中的cv::FileStorage file_,便于对文件操作
+        // 使用类的静态成员函数来判断一下这个config_file_path_是否存在.
+        // 同时将配置文件赋给Config类中的cv::FileStorage file_,便于对文件操作
+        if (Config::SetParameterFile(config_file_path_) == false)
+        {
+
             return false;
         }
 
-        dataset_ = Dataset::Ptr(new Dataset(Config::Get<std::string>("dataset_dir")));//数据集类初始化，读相机参数
-        //1.模板函数自动类型推导调用Config::Get("dataset_dir")；
-        //2.模板函数具体类型显示调用Config::Get<std::string>("dataset_dir")；
+        // Get也是类的静态成员变量，获取配置文件的数据集地址 string类型
+        // 用于初始化类Dataset
+        // dataset_ 是 VisualOdometry 的一个私有成员智能指针 share_ptr
+        dataset_ = Dataset::Ptr(new Dataset(Config::Get<std::string>("dataset_dir"))); //数据集类初始化，读相机参数
 
-        CHECK_EQ(dataset_->Init(), true);//功能类似assert断言，但不受DEBUG模式控制即非DEBUG模式也生效
-
+        // 数据集初始化，其实就是读取内参和外参，创建相机对象
+        // 成功就返回true
+        // TODO onenote写一下内参和外参的物理意义
+        // TODO 方向怎么判断 比如XYZ
+        CHECK_EQ(dataset_->Init(), true); // 功能类似assert断言，但不受DEBUG模式控制即非DEBUG模式也生效
 
         //接下来按照逻辑关系一层层的确立联系，一个完整的VO包含前端,后端,地图,可视化器等模块，因此有下述创建代码
         frontend_ = Frontend::Ptr(new Frontend);
@@ -33,11 +41,9 @@ namespace myslam{
         frontend_->SetViewer(viewer_);
         frontend_->SetCameras(dataset_->GetCamera(0), dataset_->GetCamera(1));
 
-
         //后端类的定义中用到了相机类和地图类，所以要将后端类与相机类和地图类连接起来
         backend_->SetMap(map_);
         backend_->SetCameras(dataset_->GetCamera(0), dataset_->GetCamera(1));
-
 
         //对于可视化器来说，只要有地图就可以，它只是将地图可视化，所以不需要其它模块，只需将其与地图模块连接在一起
         viewer_->SetMap(map_);
@@ -45,13 +51,14 @@ namespace myslam{
         return true;
     };
 
-
     void VisualOdometry::Run()
     {
-        while (1) {
+        while (1)
+        {
             LOG(INFO) << "VO is running";
-            if (Step() == false) {
-            //这里的主过程执行在这条if语句中,每次做条件判断都需要执行Step()，即步进操作，如果步进出问题，则跳出死循环while (1)
+            if (Step() == false)
+            {
+                //这里的主过程执行在这条if语句中,每次做条件判断都需要执行Step()，即步进操作，如果步进出问题，则跳出死循环while (1)
                 break;
             }
         }
@@ -63,17 +70,22 @@ namespace myslam{
         LOG(INFO) << "VO exit";
     };
 
-
     bool VisualOdometry::Step()
     {
-        Frame::Ptr new_frame = dataset_->NextFrame();//从数据集中读出下一帧
-        if (new_frame == nullptr) return false;//如果读到的下一帧为空，也就是说没有读到下一帧，则无法继续跟踪，报错
+        //从数据集中读出下一帧
+        Frame::Ptr new_frame = dataset_->NextFrame();
+        //如果读到的下一帧为空，也就是说没有读到下一帧，则无法继续跟踪，报错
+        if (new_frame == nullptr)
+        {
+            LOG(ERROR) << "new_fame is nulltpr";
+            return false;
+        }
 
         auto t1 = std::chrono::steady_clock::now();
-        bool success = frontend_->AddFrame(new_frame);//将新的一帧加入到前端中，进行跟踪处理,帧间位姿估计
+        bool success = frontend_->AddFrame(new_frame); //将新的一帧加入到前端中，进行跟踪处理,帧间位姿估计
         auto t2 = std::chrono::steady_clock::now();
         auto time_used =
-                std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
+            std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
         LOG(INFO) << "VO cost time: " << time_used.count() << " seconds.";
 
         return true;

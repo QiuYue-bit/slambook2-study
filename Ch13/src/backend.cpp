@@ -76,7 +76,7 @@ namespace myslam
         optimizer.setAlgorithm(solver);
 
         // 调试信息输出到命令行
-        optimizer.setVerbose(true);
+        optimizer.setVerbose(false);
 
         // Pose顶点
         std::map<unsigned long, VertexPose *> vertices;
@@ -131,7 +131,10 @@ namespace myslam
             // 如果这个地图点是外点
             // ? 在哪里判断??
             if (landmark.second->is_outlier_)
-                continue;
+			{
+				continue;
+				LOG(WARNING)<<"this is a outlier";
+			}
 
             unsigned long landmark_id = landmark.second->id_;
 

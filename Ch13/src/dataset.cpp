@@ -51,16 +51,20 @@ namespace myslam{
             //TODO 采用不缩放的图像进行实验，看看精度和匹配有没有影响
             K = K * 0.5;//因为前面你把读到的图像全部resize成了原来的一半，所以需要在内参矩阵上乘以0.5,将投影获得的像素坐标也变为原来的一半
 
+			// 初始的旋转矩阵都是I，只有平移不一样
             Camera::Ptr new_camera(new Camera(K(0, 0), K(1, 1), K(0, 2), K(1, 2),
                                               t.norm(), SE3(SO3(), t)));
             cameras_.push_back(new_camera);
+			
             LOG(INFO) << "Camera " << i << " extrinsics: " << t.transpose();
 
         }
 
         fin.close();
 
-        current_image_index_ = 0;//虽然类内已经对这个成员变量赋值了，但是这里还要写一个置0语句，是因为每次初始化之后都得给index置0
+		//虽然类内已经对这个成员变量赋值了，但是这里还要写一个置0语句.
+		// 每次初始化都要重新置0
+        current_image_index_ = 0;
         return true;
     }
 
@@ -74,7 +78,7 @@ namespace myslam{
 
 
         cv::Mat image_left, image_right;
-        // read images
+        // 灰度图形式读取
         image_left =
                 cv::imread((fmt % dataset_path_ % 0 % current_image_index_).str(),
                            cv::IMREAD_GRAYSCALE);
@@ -83,7 +87,7 @@ namespace myslam{
                            cv::IMREAD_GRAYSCALE);
 
         if (image_left.data == nullptr || image_right.data == nullptr) {
-            LOG(WARNING) << "cannot find images at index " << current_image_index_;
+            LOG(ERROR) << "cannot find images at index " << current_image_index_;
             return nullptr;
         }
 
@@ -113,11 +117,14 @@ namespace myslam{
         cv::Mat image_left_resized, image_right_resized;
         cv::resize(image_left, image_left_resized, cv::Size(), 0.5, 0.5,
                    cv::INTER_NEAREST);
+		
         cv::resize(image_right, image_right_resized, cv::Size(), 0.5, 0.5,
                    cv::INTER_NEAREST);
 
-
+		// 
         auto new_frame = Frame::CreateFrame();
+		
+		// 
         new_frame->left_img_ = image_left_resized;
         new_frame->right_img_ = image_right_resized;
         current_image_index_++;

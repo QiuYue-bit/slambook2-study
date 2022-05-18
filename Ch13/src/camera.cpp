@@ -8,10 +8,17 @@ namespace myslam {
     }
 
     Vec3 Camera::world2camera(const Vec3 &p_w, const SE3 &T_c_w) {
+		// T_CxC0 * T_C0W * P_w = 
+		// T_CxC0 * P_C0 =
+		// P_Cx
         return pose_ * T_c_w * p_w;
 
     }
 
+	Vec2 Camera::world2pixel(const Vec3 &p_w, const SE3 &T_c_w) {
+        return camera2pixel(world2camera(p_w, T_c_w));
+    }
+	
     Vec3 Camera::camera2world(const Vec3 &p_c, const SE3 &T_c_w) {
         return T_c_w.inverse() * pose_inv_ * p_c;
     }
@@ -30,13 +37,14 @@ namespace myslam {
                 depth
         );
     }
-
-    Vec2 Camera::world2pixel(const Vec3 &p_w, const SE3 &T_c_w) {
-        return camera2pixel(world2camera(p_w, T_c_w));
-    }
-
-    Vec3 Camera::pixel2world(const Vec2 &p_p, const SE3 &T_c_w, double depth) {
+	
+	Vec3 Camera::pixel2world(const Vec2 &p_p, const SE3 &T_c_w, double depth) {
         return camera2world(pixel2camera(p_p, depth), T_c_w);
     }
+	
+
+
+
+
 
 }

@@ -1,3 +1,12 @@
+/*** 
+ * @Author       : Yue
+ * @Date         : 2022-05-12 15:50:57
+ * @LastEditTime : 2022-05-17 21:11:05
+ * @LastEditors  : Yue
+ * @Description  : 
+ * @FilePath     : /Ch13/src/frame.cpp
+ * @佛祖保佑 BUG FREE
+ */
 ///针对frame.h中涉及的各类函数进行定义实现
 
 
@@ -5,18 +14,19 @@
 
 namespace myslam {
 
-    Frame::Frame(long id, double time_stamp, const SE3 &pose, const Mat &left, const Mat &right)
-            : id_(id), time_stamp_(time_stamp), pose_(pose), left_img_(left), right_img_(right) {}
-
+    // 静态成员函数的定义
     Frame::Ptr Frame::CreateFrame() {
-		
-        static long factory_id = 0; 
-        Frame::Ptr new_frame(new Frame);
+        // 帧ID号
+        static long factory_id = 0;
+
+        // Frame::Ptr new_frame(new Frame);
+        Frame::Ptr new_frame = std::make_shared<Frame>();
         new_frame->id_ = factory_id++;
         return new_frame;
     }
 
     void Frame::SetKeyFrame() {
+        // 关键帧的ID号
         static long keyframe_factory_id = 0;
         is_keyframe_ = true;
         keyframe_id_ = keyframe_factory_id++;

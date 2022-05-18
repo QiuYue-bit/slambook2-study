@@ -1,3 +1,12 @@
+/*** 
+ * @Author       : Yue
+ * @Date         : 2022-05-12 15:50:57
+ * @LastEditTime : 2022-05-17 21:36:24
+ * @LastEditors  : Yue
+ * @Description  : 
+ * @FilePath     : /Ch13/include/myslam/algorithm.h
+ * @佛祖保佑 BUG FREE
+ */
 #ifndef MYSLAM_ALGORITHM_H
 #define MYSLAM_ALGORITHM_H
 
@@ -19,7 +28,7 @@ namespace myslam
         // 构建A矩阵，见Onenote-《三角化》
         for (size_t i = 0; i < poses.size(); ++i)
         {
-            auto m  = poses[i].matrix3x4();
+            auto m = poses[i].matrix3x4();
             A.block<1, 4>(2 * i, 0) = points[i][0] * m.row(2) - m.row(0);
             A.block<1, 4>(2 * i + 1, 0) = points[i][1] * m.row(2) - m.row(1);
         }

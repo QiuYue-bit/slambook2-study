@@ -9,6 +9,8 @@
 #include "myslam/viewer.h"
 #include "myslam/frontend.h"
 
+using namespace std;
+
 namespace myslam
 {
 
@@ -23,8 +25,9 @@ namespace myslam
 
     bool Frontend::AddFrame(myslam::Frame::Ptr frame)
     {
-
+		// 当前帧赋值
         current_frame_ = frame;
+
         switch (status_) // status_是前端Frontend的类成员，所以这里判断的是整个前端的状态
         {
         case FrontendStatus::INITING:
@@ -32,12 +35,17 @@ namespace myslam
             break;
         // TODO 好坏的判断条件
         // TODO 在可视化中显示一下这个变量
-        case FrontendStatus::TRACKING_GOOD: //不加break就不会跳出switch结构，不管后面case的条件是否符合都将会执行，
-                                            // 直到遇到第一个break才会跳出switch结构
-                                            //此处的TRACKING_GOOD和TRACKING_BAD并非跟踪失败或者跟踪成功的含义，这里的good和bad只是跟踪时条件好坏的区别
-                                            //当跟踪到的特征点数目充足时就是good，当特征点数目不足时就是bad，但不论good还是bad，都只是一个条件恶劣与否的问题，并不涉及失败
-                                            //当特征点少到不行的时候，就已经不是good和bad的问题了，太少的时候我们就认为跟踪丢了，设置为LOST，这个lost可以理解为跟踪失败
-                                            //所以，lost之后需要reset系统
+			
+		// 这而不管是GOOD还是BAD都会继续执行track()函数
+		// 	
+        case FrontendStatus::TRACKING_GOOD:
+
+        //不加break就不会跳出switch结构，不管后面case的条件是否符合都将会执行，
+        // 直到遇到第一个break才会跳出switch结构
+        //此处的TRACKING_GOOD和TRACKING_BAD并非跟踪失败或者跟踪成功的含义，这里的good和bad只是跟踪时条件好坏的区别
+        //当跟踪到的特征点数目充足时就是good，当特征点数目不足时就是bad，但不论good还是bad，都只是一个条件恶劣与否的问题，并不涉及失败
+        //当特征点少到不行的时候，就已经不是good和bad的问题了，太少的时候我们就认为跟踪丢了，设置为LOST，这个lost可以理解为跟踪失败
+        //所以，lost之后需要reset系统
         case FrontendStatus::TRACKING_BAD:
             Track();
             break;
@@ -101,14 +109,21 @@ namespace myslam
 
     bool Frontend::Track()
     {
-        // TODO 这儿说的当前帧是 左目 还是右目？
-        if (last_frame_) //判断last_frame_是不是空指针，如果是空指针，说明这个指针没有指到正确的上一帧所在的内存地址，则不执行后续语句，等同于false
+        // 如果上一帧不是空指针,使用匀速模型预测当前帧的位姿
+		// ? 一个保护措施吧，很少遇到
+		// 良好的习惯
+        if (last_frame_) 
         {
             current_frame_->SetPose(relative_motion_ * last_frame_->Pose()); //当前帧pose等于上一帧pose加上一个帧间pose
             // world----last_frame * last_frame------current_frame = world----current_frame
-        }
+        }else
+		{
+			LOG(ERROR)<<"last_frame_ is nullptr";
+		}
 
+		
         //从上一帧跟踪到当前帧，跟踪到了多少个特征。
+		// 同时建立特征与地图点的单向联系 featrue -> mappoint
         int num_track_last = TrackLastFrame();
 
         // 使用g2o进行poseOnly优化，并剔除外点，返回内点的数量
@@ -122,6 +137,9 @@ namespace myslam
         // 大于50个点 good
         // 大于20个点 bad
         // 否则 gg
+
+        //输出一下现在跟踪到的点的数量
+        cout << "tracking_inliers_ is " << tracking_inliers_ << endl;
         if (tracking_inliers_ > num_features_tracking_)
         {
             // tracking good
@@ -159,14 +177,10 @@ namespace myslam
     bool Frontend::Reset()
     {
         LOG(INFO) << "Reset is not implemented. ";
-        status_ = FrontendStatus::INITING; //前端状态重置
+        // //前端状态重置
+        status_ = FrontendStatus::INITING;
 
         return true;
-        /*
-         * 在需要插入日志的地方调用LOG(TYPE)<<”yourinfo”;即可。your info表示你要输入到日志文件中的信息。
-         */
-        // TODO
-        //高博在这里并没有做Reset的实现，我们可以在后续读完程序后给他补上
     }
 
     //三个上层级函数已经实现，接下来对stereoInit，Track，Reset三个函数中的一些细节函数再作以补充实现。
@@ -476,7 +490,6 @@ namespace myslam
         std::vector<EdgeProjectionPoseOnly *> edges;
 
         //建立一个特征容器，存储左目带有地图点的特征，也就是参加优化的那些特征
-        // ? 干毛的
         std::vector<Feature::Ptr> features;
 
         //建立Pnp
@@ -647,9 +660,9 @@ namespace myslam
         //这个函数其实与BuildInitMap差不多
         std::vector<SE3> poses{camera_left_->pose(), camera_right_->pose()};
         SE3 current_pose_Twc = current_frame_->Pose().inverse(); // current_frame_->Pose()是从世界到相机,逆就是从相机到世界
-    
+
         // 这波新生成的地图点的数量
-        int cnt_triangulated_pts = 0;                           
+        int cnt_triangulated_pts = 0;
 
         // 对于左目中提取到的所有特征，进行遍历
         for (size_t i = 0; i < current_frame_->features_left_.size(); ++i)

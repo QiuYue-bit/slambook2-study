@@ -1,3 +1,12 @@
+/*** 
+ * @Author       : Yue
+ * @Date         : 2022-05-12 15:50:57
+ * @LastEditTime : 2022-05-18 14:42:44
+ * @LastEditors  : Yue
+ * @Description  : 
+ * @FilePath     : /Ch13/include/myslam/viewer.h
+ * @佛祖保佑 BUG FREE
+ */
 #ifndef MYSLAM_VIEWER_H
 #define MYSLAM_VIEWER_H
 
@@ -20,13 +29,17 @@ namespace myslam{
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
         typedef std::shared_ptr<Viewer> Ptr;
 
-        Viewer();//构造函数
+        // Viewer 构造函数，同时开启显示线程
+        Viewer();
 
-        void SetMap(Map::Ptr map) { map_ = map; } //地图类成员变量map_是个私有变量，需要通过函数接口SetMap来赋值
+        // 显示线程是用来显示地图的
+        // 这儿就设置一下地图类的指针，后续会用到
+        void SetMap(Map::Ptr map) { map_ = map; } 
 
+        // 设置标志位，退出线程的while循环
         void Close();
 
-        // 增加一个当前帧
+        // 把当前帧设为显示线程中最新的帧
         void AddCurrentFrame(Frame::Ptr current_frame);
 
         // 更新地图
@@ -35,28 +48,36 @@ namespace myslam{
 
     private:
 
-
+        // 
         void ThreadLoop();
 
-        void DrawFrame(Frame::Ptr frame, const float* color);  //画出关键帧
+        // 画出关键帧
+        void DrawFrame(Frame::Ptr frame, const float* color);  
 
-        void DrawMapPoints();//画出地图点
+        //画出地图点
+        void DrawMapPoints();
 
+        // 设置pangolin的视角跟随当前帧
         void FollowCurrentFrame(pangolin::OpenGlRenderState& vis_camera);//视角跟随当前帧
 
+        // 将特征点绘制在图像上
+        cv::Mat PlotFrameImage();
 
-        cv::Mat PlotFrameImage();//将当前帧中的特征画在图像上
-
+        // 当前帧的指针
         Frame::Ptr current_frame_ = nullptr;
+
+        // 指向地图的指针，用于绘制关键帧和地图点
         Map::Ptr map_ = nullptr;
 
+        // 显示线程
         std::thread viewer_thread_;
         bool viewer_running_ = true;
 
+        // 
         std::unordered_map<unsigned long, Frame::Ptr> active_keyframes_;
         std::unordered_map<unsigned long, MapPoint::Ptr> active_landmarks_;
-        bool map_updated_ = false;
 
+        // 显示线程要
         std::mutex viewer_data_mutex_;
     };
 

@@ -82,6 +82,7 @@ namespace myslam
         // 如果距离小于最近的阈值,则认为这个帧携带的信息很少,剔除最近的关键帧
         // 否则剔除最远的关键帧
         // TODO 关键帧是怎么选取的?
+        // 如果前端跟踪的内点小于 ** 就认为是关键帧
         if (min_dis < min_dis_th)
         {
             // 如果存在很近的帧，优先删掉最近的
@@ -93,18 +94,15 @@ namespace myslam
             frame_to_remove = keyframes_.at(max_kf_id);
         }
 
-        // TODO 怎么用?
-        // 谷歌怎么库怎么用?
         LOG(INFO) << "remove keyframe " << frame_to_remove->keyframe_id_;
 
         // 关键帧被删除了,关键帧包含了 特征 和 地图点
         // 之前与地图点建立了联系的特征
 
-        // step 1 ,根据id号,将keyframe移除
-        // TODO keyframe的内存怎么回收?
+        // step 1 ,根据id号,将滑动窗口内旧的关键帧给移除
         active_keyframes_.erase(frame_to_remove->keyframe_id_);
 
-        // Step 2 对于要移除的关键帧中的每一个特征
+        // Step 2 移除旧的关键帧的观测
         for (auto feat : frame_to_remove->features_left_)
         {
             // 返回特征点对应地图点的指针
