@@ -121,13 +121,14 @@ namespace myslam{
         cv::resize(image_right, image_right_resized, cv::Size(), 0.5, 0.5,
                    cv::INTER_NEAREST);
 
-		// 
+		// 创建一个新的帧，自动分配ID号
         auto new_frame = Frame::CreateFrame();
 		
-		// 
+		// 左右目
         new_frame->left_img_ = image_left_resized;
         new_frame->right_img_ = image_right_resized;
         current_image_index_++;
+
         return new_frame;
 
     }

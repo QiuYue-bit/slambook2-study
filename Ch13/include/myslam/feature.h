@@ -1,12 +1,3 @@
-/***
- * @Author       : Yue
- * @Date         : 2022-05-12 15:50:57
- * @LastEditTime : 2022-05-17 21:00:22
- * @LastEditors  : Yue
- * @Description  :
- * @FilePath     : /Ch13/include/myslam/feature.h
- * @佛祖保佑 BUG FREE
- */
 #pragma once
 
 #ifndef MYSLAM_FEATURE_H
@@ -33,7 +24,7 @@ namespace myslam
         typedef std::shared_ptr<Feature> Ptr;
 
         cv::KeyPoint position_;        //特征点的坐标
-        bool is_outlier_ = false;      // TODO 特征点是不是外点(误匹配的点?)
+        bool is_outlier_ = false;      // 重投影误差比较大的点，被认为是外点
         bool is_on_left_image_ = true; // 标识一下是左目的特征还是右目的特征
 
         /*weak_ptr是弱智能指针对象，它不控制所指向对象生存期的智能指针，

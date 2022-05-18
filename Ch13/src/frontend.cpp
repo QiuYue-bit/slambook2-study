@@ -33,9 +33,7 @@ namespace myslam
         case FrontendStatus::INITING:
             StereoInit(); //这里的StereoInit应该是一个bool函数
             break;
-        // TODO 好坏的判断条件
-        // TODO 在可视化中显示一下这个变量
-			
+
 		// 这而不管是GOOD还是BAD都会继续执行track()函数
 		// 	
         case FrontendStatus::TRACKING_GOOD:
@@ -127,7 +125,6 @@ namespace myslam
         int num_track_last = TrackLastFrame();
 
         // 使用g2o进行poseOnly优化，并剔除外点，返回内点的数量
-        // TODO 应该是主要耗时的线程，查一下
         tracking_inliers_ = EstimateCurrentPose();
 
         //(重投影)，同时根据这个函数的名字，我猜测后面还有对当前帧pose的精化。
@@ -139,7 +136,8 @@ namespace myslam
         // 否则 gg
 
         //输出一下现在跟踪到的点的数量
-        cout << "tracking_inliers_ is " << tracking_inliers_ << endl;
+        // cout << "tracking_inliers_ is " << tracking_inliers_ << endl;
+
         if (tracking_inliers_ > num_features_tracking_)
         {
             // tracking good
@@ -251,10 +249,9 @@ namespace myslam
                 kps_right.push_back(cv::Point2f(px[0], px[1]));
             }
             else
-            { //如果指针为空则执行else语段
+            { 
+                //如果指针为空则执行else语段
                 // 如果左目的特征还没有和地图点有关联，就使用相同的坐标。
-                // TODO 之前不是知道双目之间的基线吗？
-                // TODO 算出的这个pose是左目的pose还是右目的pose？
                 kps_right.push_back(kp->position_.pt);
             }
         }
@@ -278,18 +275,21 @@ namespace myslam
             // 成功跟踪到了这个特征
             if (status[i])
             {
-                // TODO 这个7是干什么的？
+                // 这个7是特征点的大小，OPENCV绘制特征点那个圆的半径
                 cv::KeyPoint kp(kps_right[i], 7);
-                //上述KeyPoint构造函数中7代表着关键点直径
-                Feature::Ptr feat(new Feature(current_frame_, kp));
+
                 // 将这个特征认为是右目上的特征
+                Feature::Ptr feat(new Feature(current_frame_, kp));
+                
+
                 feat->is_on_left_image_ = false;
                 current_frame_->features_right_.push_back(feat);
                 num_good_pts++;
             }
             else
             {
-                current_frame_->features_right_.push_back(nullptr); //光流跟踪没找到的特征，就在features_right_里面填空指针
+                //光流跟踪没找到的特征，就在features_right_里面填空指针
+                current_frame_->features_right_.push_back(nullptr); 
             }
         }
 
@@ -302,9 +302,11 @@ namespace myslam
     bool Frontend::BuildInitMap()
     {
 
-        // TODO 这个Pose是多少？指代的是左目的pose还是右目的pose?
-        //构造一个存储SE3的vector，里面初始化就放两个pose，一个左目pose，一个右目pose，
-        // 看到这里应该记得，对Frame也有一个pose，Frame里面的
+        // 构造一个存储SE3的vector，里面初始化就放两个pose，
+        // 这个pose存储着两个相机的外参
+        // T_C0C1和T_C0C2
+        // C0是虚拟相机坐标系和左目重合
+        // C1是左目 C2是右目
         std::vector<SE3> poses{camera_left_->pose(), camera_right_->pose()};
 
         size_t cnt_init_landmarks = 0; //初始化的路标数目
@@ -429,18 +431,17 @@ namespace myslam
             // status[i]=true则说明跟踪成功有对应点，false则跟踪失败没找到对应点
             if (status[i])
             {
-                // TODO 这个7是什么意思，有用到吗？
+                // 7是关键点的直径
                 cv::KeyPoint kp(kps_current[i], 7);
                 Feature::Ptr feature(new Feature(current_frame_, kp));
 
-                // TODO ？这里可能有问题
                 // 对于成功跟踪上的特征点，如果在上一帧中对应了地图点，那么这一帧的特征点也和该地图点建立联系
-                // ? 那地图点还没有跟这个特征建建立联系呢
-                // ? 在关键帧中建立联系
+                // 如果没有对应的地图点，这儿赋值一个空指针
                 feature->map_point_ = last_frame_->features_left_[i]->map_point_;
-                //这个时候这里面的map_point_有可能之前没在右目中找到对应点，所以其对应的map_point_未曾被初始化或者赋值，也可以这么写吗？
-                //针对于这种情况，应该只是保证了feature->map_point_和last_frame_->features_left_[i]->map_point_之间的相同性，
-                // 但却并没有关注last_frame_->features_left_[i]->map_point_是否被初始化或者赋值。
+
+                // if( !feature->map_point_.lock())
+                //     LOG(ERROR)<<"this is a nullptr";
+
 
                 // 把匹配上的特征，作为当前帧的特征点存储到特征管理器中。
                 current_frame_->features_left_.push_back(feature);
@@ -598,12 +599,11 @@ namespace myslam
         {
             if (feat->is_outlier_)
             {
-                feat->map_point_.reset(); //弱指针自带的操作函数reset，作用是将指针置空
-                // TODO 都外点了不直接删除？
-                // ? 搞得什么花里胡哨
-                // ? 是不是在后面还能绑定到其他 的地图点
-                // 这个外点是什么?误匹配吗?
-                // 如果是误匹配为什么不直接删除?
+                //弱指针自带的操作函数reset，作用是将指针置空
+                feat->map_point_.reset(); 
+
+                // feat是一个vector类型的容器，不好删除
+                // 把这个特对应的地图点删除，这样后面就不会再用到这个特征了。
                 feat->is_outlier_ = false;
             }
         }
@@ -643,7 +643,6 @@ namespace myslam
         TriangulateNewPoints();
 
         // 告诉后端，我们有一个新的关键帧来了
-        // TODO SO?这儿的语法没看懂
         backend_->UpdateMap();
 
         // 关键帧更新了，告诉一下显示线程，你的显示也要更新一下咯

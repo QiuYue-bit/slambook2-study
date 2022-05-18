@@ -1,7 +1,7 @@
 /*** 
  * @Author       : Yue
  * @Date         : 2022-05-12 15:50:57
- * @LastEditTime : 2022-05-17 17:22:45
+ * @LastEditTime : 2022-05-18 16:01:27
  * @LastEditors  : Yue
  * @Description  : 
  * @FilePath     : /Ch13/src/config.cpp
@@ -24,9 +24,8 @@ namespace myslam
 
         // 类的成员函数可以直接使用类的静态成员
         if (config_ == nullptr)
-            // TODO  验证一下
+
             // 类的构造函数是私有的，这儿可以进行new操作是因为，这里是类成员函数的内部
-            // ! 这是一个单例
             config_ = std::shared_ptr<Config>(new Config());
 
         // 根据参数文件路径，返回文件句柄

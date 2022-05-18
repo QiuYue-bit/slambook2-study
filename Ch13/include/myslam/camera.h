@@ -19,7 +19,7 @@ namespace myslam
                baseline_ = 0;
 
         // 外参
-        // TODO 谁相对于谁的？物理意义？
+        // 相对于左目的外参
         // T_CxC0
         SE3 pose_;     // extrinsic
         SE3 pose_inv_; // inverse of extrinsics
@@ -47,7 +47,6 @@ namespace myslam
         // *世界系下的三维点 P_w
         // *虚拟相机坐标系 C_0   左目相机坐标系C_1 左目相机坐标系C_2
         // *左目和右目相对于虚拟相机坐标系得外参为 pose_
-        // TODO 见Onenote
 
         // 将世界系下的三维点 P_w 投影到相机坐标系 C_x
         Vec3 world2camera(const Vec3 &p_w, const SE3 &T_c_w);

@@ -30,8 +30,7 @@ namespace myslam
         // 地图点的ID号
         unsigned long id_ = 0; // ID
 
-        // 地图点是不是False
-        // TODO 如果是有什么操作？
+        // 没用上这个
         bool is_outlier_ = false;
 
         // 地图点的坐标

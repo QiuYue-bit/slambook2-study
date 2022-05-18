@@ -25,8 +25,6 @@ namespace myslam
 
         // 数据集初始化，其实就是读取内参和外参，创建相机对象
         // 成功就返回true
-        // TODO onenote写一下内参和外参的物理意义
-        // TODO 方向怎么判断 比如XYZ
         CHECK_EQ(dataset_->Init(), true); // 功能类似assert断言，但不受DEBUG模式控制即非DEBUG模式也生效
 
         //接下来按照逻辑关系一层层的确立联系，一个完整的VO包含前端,后端,地图,可视化器等模块，因此有下述创建代码
@@ -88,6 +86,7 @@ namespace myslam
             std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
         LOG(INFO) << "VO cost time: " << time_used.count() << " seconds.";
 
+        new_frame->cost_time = time_used.count() *1000;
         return true;
     }
 }

@@ -1,12 +1,3 @@
-/***
- * @Author       : Yue
- * @Date         : 2022-05-12 15:50:57
- * @LastEditTime : 2022-05-17 20:12:31
- * @LastEditors  : Yue
- * @Description  :
- * @FilePath     : /Ch13/include/myslam/frame.h
- * @佛祖保佑 BUG FREE
- */
 #pragma once
 
 #ifndef MYSLAM_FRAME_H
@@ -39,6 +30,8 @@ namespace myslam
         bool is_keyframe_ = false;      // 该帧是不是关键帧
 
         SE3 pose_; // 该帧的位姿
+
+        int cost_time; // 处理该帧消耗的时间，单位ms
 
         // 位姿的数据锁，这个位姿可能同时被多个线程读写
         // 因此读写的时候要加锁

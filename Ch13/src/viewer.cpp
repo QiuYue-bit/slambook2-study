@@ -5,6 +5,7 @@
 #include <pangolin/pangolin.h>
 #include <opencv2/opencv.hpp>
 
+using namespace std;
 namespace myslam
 {
 
@@ -27,7 +28,9 @@ namespace myslam
     {
 
         // 为什么这儿需要锁？
-        // TODO
+        // current_frame_在显示线程被读取
+        // AddCurrentFrame 是在前端被调用的
+        // 也就是current_frame_在不同的线程被读取了，所以设个锁
         std::unique_lock<std::mutex> lck(viewer_data_mutex_);
 
         // 注意current_frame_ 这个是Viewer的私有成员函数
@@ -50,6 +53,41 @@ namespace myslam
                            2);
             }
         }
+
+        // 在图像上显示当前帧的ID以及前端处理当前帧消耗的时间。
+        {
+
+            // 需要填充的文字
+            std::string txt = "Frame id :";
+            txt += std::to_string(current_frame_->id_ / 10 * 10);
+            txt += "cost time :";
+            txt += std::to_string(current_frame_->cost_time);
+            txt += "ms";
+
+            //设置绘制文本的相关参数
+            int font_face = cv::FONT_HERSHEY_COMPLEX;
+            double font_scale = 1;
+            int thickness = 1;
+            int baseline;
+
+            cv::Size text_size = cv::getTextSize(txt, font_face, font_scale, thickness,&baseline);
+            cv::Point origin;
+            origin.x = img_out.cols / 2 - text_size.width / 2;
+            origin.y = img_out.rows / 4 + text_size.height / 2;
+
+            // https://blog.csdn.net/guduruyu/article/details/68491211
+            // TODO OPENCV的使用方法
+            cv::putText(
+                img_out,                   // 待绘制的图像
+                txt,                       // 待绘制的文字
+                origin,                    // 文本框的左下角
+                font_face,                 // 字体
+                font_scale,                // 尺寸因子，值越大文字越大
+                cv::Scalar(255, 255, 255), // 颜色
+                thickness,                 // 线型
+                8);
+        }
+
         return img_out;
     }
 
@@ -124,8 +162,7 @@ namespace myslam
             //将视口vis_display根据vis_camera这个相机视角激活为一个交互式视图（可以用鼠标进行视角旋转）
             vis_display.Activate(vis_camera);
 
-            // 由于current_frame_以及
-            // TODO 为什么要锁
+            // 由于current_frame_不止在一个线程中被调用，所以要上锁
             std::unique_lock<std::mutex> lock(viewer_data_mutex_);
 
             //如果当前帧不为空指针
@@ -138,7 +175,7 @@ namespace myslam
                 // FollowCurrentFrame(vis_camera);
 
                 // 把特征点在图像上画出来
-                cv::Mat img = PlotFrameImage(); 
+                cv::Mat img = PlotFrameImage();
 
                 cv::imshow("image", img);
                 cv::waitKey(1); //停1ms
@@ -150,7 +187,7 @@ namespace myslam
             {
 
                 // 绘制关键帧和地图点（红色）
-                DrawMapPoints(); 
+                DrawMapPoints();
             }
 
             pangolin::FinishFrame();
@@ -180,12 +217,11 @@ namespace myslam
 
         Sophus::Matrix4f m = Twc.matrix().template cast<float>();
         //将原有的世界坐标系变换到当前坐标系下，便于直接画出相机模型
-        glMultMatrixf((GLfloat *)m.data()); 
-
+        glMultMatrixf((GLfloat *)m.data());
 
         // 没有指定画什么颜色，就画红色
         if (color == nullptr)
-        { 
+        {
             glColor3f(1, 0, 0);
         }
         else
@@ -194,27 +230,27 @@ namespace myslam
         //这里要在Pangolin里面画出相机模型了，如果你实际运行了这个VO，应该会记得Pangolin里面画出的那个小相机是由8条边构成的
         glLineWidth(line_width); //设置线宽
         glBegin(GL_LINES);       //开始画线
-                                 
-            glVertex3f(0, 0, 0);
-            glVertex3f(sz * (0 - cx) / fx, sz * (0 - cy) / fy, sz);
-            glVertex3f(0, 0, 0);
-            glVertex3f(sz * (0 - cx) / fx, sz * (height - 1 - cy) / fy, sz);
-            glVertex3f(0, 0, 0);
-            glVertex3f(sz * (width - 1 - cx) / fx, sz * (height - 1 - cy) / fy, sz);
-            glVertex3f(0, 0, 0);
-            glVertex3f(sz * (width - 1 - cx) / fx, sz * (0 - cy) / fy, sz);
 
-            glVertex3f(sz * (width - 1 - cx) / fx, sz * (0 - cy) / fy, sz);
-            glVertex3f(sz * (width - 1 - cx) / fx, sz * (height - 1 - cy) / fy, sz);
+        glVertex3f(0, 0, 0);
+        glVertex3f(sz * (0 - cx) / fx, sz * (0 - cy) / fy, sz);
+        glVertex3f(0, 0, 0);
+        glVertex3f(sz * (0 - cx) / fx, sz * (height - 1 - cy) / fy, sz);
+        glVertex3f(0, 0, 0);
+        glVertex3f(sz * (width - 1 - cx) / fx, sz * (height - 1 - cy) / fy, sz);
+        glVertex3f(0, 0, 0);
+        glVertex3f(sz * (width - 1 - cx) / fx, sz * (0 - cy) / fy, sz);
 
-            glVertex3f(sz * (width - 1 - cx) / fx, sz * (height - 1 - cy) / fy, sz);
-            glVertex3f(sz * (0 - cx) / fx, sz * (height - 1 - cy) / fy, sz);
+        glVertex3f(sz * (width - 1 - cx) / fx, sz * (0 - cy) / fy, sz);
+        glVertex3f(sz * (width - 1 - cx) / fx, sz * (height - 1 - cy) / fy, sz);
 
-            glVertex3f(sz * (0 - cx) / fx, sz * (height - 1 - cy) / fy, sz);
-            glVertex3f(sz * (0 - cx) / fx, sz * (0 - cy) / fy, sz);
+        glVertex3f(sz * (width - 1 - cx) / fx, sz * (height - 1 - cy) / fy, sz);
+        glVertex3f(sz * (0 - cx) / fx, sz * (height - 1 - cy) / fy, sz);
 
-            glVertex3f(sz * (0 - cx) / fx, sz * (0 - cy) / fy, sz);
-            glVertex3f(sz * (width - 1 - cx) / fx, sz * (0 - cy) / fy, sz);
+        glVertex3f(sz * (0 - cx) / fx, sz * (height - 1 - cy) / fy, sz);
+        glVertex3f(sz * (0 - cx) / fx, sz * (0 - cy) / fy, sz);
+
+        glVertex3f(sz * (0 - cx) / fx, sz * (0 - cy) / fy, sz);
+        glVertex3f(sz * (width - 1 - cx) / fx, sz * (0 - cy) / fy, sz);
 
         glEnd();       //结束画线
         glPopMatrix(); //弹出操作，或者说出栈操作，恢复到这个变换以前的状态
@@ -224,8 +260,9 @@ namespace myslam
     {
         const float red[3] = {1.0, 0, 0};
 
+        //将所有的窗口内激活帧都画成红色
         for (auto &kf : active_keyframes_)
-        { //将所有的窗口内激活帧都画成红色
+        {
             DrawFrame(kf.second, red);
         }
 

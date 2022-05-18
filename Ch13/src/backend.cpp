@@ -20,9 +20,11 @@ namespace myslam
 
     void Backend::UpdateMap()
     {
-        std::unique_lock<std::mutex> lock(data_mutex_); //没有defer_lock的话创建就会自动上锁了
-        // TODO 这句话的作用？
-        map_update_.notify_one(); //随机唤醒一个wait的线程
+         // 没有defer_lock的话创建就会自动上锁了
+        std::unique_lock<std::mutex> lock(data_mutex_);
+
+        // 尝试把卡在wait()里的线程给唤醒
+        map_update_.notify_one(); 
     }
 
     void Backend::Stop()
@@ -41,12 +43,9 @@ namespace myslam
             // 上锁
             std::unique_lock<std::mutex> lock(data_mutex_);
 
-            // TODO 这个wait怎么用？ 查一下
-
-            // wait():一般编程中都需要先检查一个条件才进入等待环节，因此在中间有一个检查时段，检查条件的时候是不安全的，需要lock
-            //被notify_one唤醒后，wait() 函数也会自动调用 data_mutex_.lock()，使得data_mutex_恢复到上锁状态
-            // 是不是幻想一次,一次继续上锁?
-            // !不太懂这个锁的操作
+            // map_update_是一个条件变量
+            // wait()用于等一个东西
+            // 其作用是将互斥量给解锁，直到其他的线程调用了notify_one()为止
             map_update_.wait(lock);
 
             // 后端仅优化激活的Frames和Landmarks
@@ -65,12 +64,14 @@ namespace myslam
         // 块求解器 6维pose 3维landmark
         typedef g2o::BlockSolver<g2o::BlockSolverTraits<6, 3>> block; //对于二元边来说，这里的6,3是两个顶点的维度
 
-        // TODO LinearSolverCSparse和Dense 什么情况下用什么?
-        // 增量方程Hx=b的求解方法 Dense cholesky分解法
+        // https://blog.csdn.net/ziliwangmoe/article/details/89399540
+        // 增量方程Hx=b的求解方法 CSparse分解法
         typedef g2o::LinearSolverCSparse<block::PoseMatrixType> LinearSolverType;
+
         // 使用LM算法
         g2o::OptimizationAlgorithmLevenberg *solver = new g2o::OptimizationAlgorithmLevenberg(
             g2o::make_unique<block>(g2o::make_unique<LinearSolverType>()));
+
         //创建稀疏优化器
         g2o::SparseOptimizer optimizer;
         optimizer.setAlgorithm(solver);
@@ -88,8 +89,8 @@ namespace myslam
         std::map<EdgeProjection *, Feature::Ptr> edges_and_features;
 
         // 存储最大的关键帧ID号
-        // ? 虽然我认为没有这个必要,如果仅仅是为了给g2o的话
-        // 也可能是调试用的
+        // 因为g2o规定地图点的ID号要大于位姿的ID号
+        // 因此确定了最大帧的ID号后，直接在这个基础上计算地图点的ID号
         unsigned long max_kf_id = 0;
 
         // 把滑动窗口里的关键帧取出来
@@ -128,12 +129,11 @@ namespace myslam
         // 对于每一个地图点
         for (auto &landmark : landmarks)
         {
-            // 如果这个地图点是外点
-            // ? 在哪里判断??
+            // ?没用上
             if (landmark.second->is_outlier_)
 			{
 				continue;
-				LOG(WARNING)<<"this is a outlier";
+				LOG(ERROR)<<"this is a outlier";
 			}
 
             unsigned long landmark_id = landmark.second->id_;
@@ -142,8 +142,10 @@ namespace myslam
             auto observations = landmark.second->GetObs();
             for (auto &obs : observations)
             {
-                // ?会发生这样的事情?
-                // ?mappoint.cpp 第43行的erase有没有这个效果?
+                
+                // 预防判断
+                // 实际上在List里删掉了无效的观测
+                // 不会进来
                 if (obs.lock() == nullptr)
                 {
                     continue;
@@ -153,8 +155,7 @@ namespace myslam
                 // 拿到一个特征点的指针
                 auto feat = obs.lock();
 
-                // ? 为什么会发生这样的事情
-                // 这个外点都在哪些地方设置了
+                // 外点在前端和后端的g2o中处理
                 // 判断一下这个特征是不是外点 且对应的帧指针是不是空
                 if (feat->is_outlier_ || feat->frame_.lock() == nullptr)
                     continue;
@@ -199,7 +200,7 @@ namespace myslam
                 // 一个地图点,对应了多帧上的特征点
                 // 一条边关联着地图点和对应特征的帧的位姿
 
-                // TODO 这儿的数据成员访问方法,写个程序
+                // vertices是map类型
                 edge->setVertex(0, vertices.at(frame->keyframe_id_));   // pose
                 edge->setVertex(1, vertices_landmarks.at(landmark_id)); // landmark
 
@@ -234,7 +235,9 @@ namespace myslam
 
 
         // 调整阈值
-        // TODO 看一下这个函数的作用
+        // 对结果没有影响
+        // ?有啥用
+
         // while (iteration < 5)
         // {
         //     cnt_outlier = 0;
