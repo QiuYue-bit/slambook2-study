@@ -7,15 +7,6 @@
  * @FilePath     : /Ch13/src/mappoint.cpp
  * @佛祖保佑 BUG FREE
  */
-/***
- * @Author       : Yue
- * @Date         : 2022-05-12 15:50:57
- * @LastEditTime : 2022-05-15 19:38:52
- * @LastEditors  : Yue
- * @Description  :
- * @FilePath     : /Ch13/src/mappoint.cpp
- * @佛祖保佑 BUG FREE
- */
 ///针对mappoint.h中涉及的各类函数进行定义实现
 
 #include "myslam/mappoint.h"

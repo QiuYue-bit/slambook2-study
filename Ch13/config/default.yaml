@@ -11,7 +11,11 @@ camera.cx: 325.1
 camera.cy: 249.7
 
 # 图片缩放系数
-img_resize: 0.5
+img_resize: 1
+
+# FAST角点的阈值
+fast_threshold: 80
+
 
 num_features: 150
 num_features_init: 100

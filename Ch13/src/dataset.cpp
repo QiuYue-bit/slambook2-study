@@ -47,8 +47,8 @@ namespace myslam{
             // OPENCV的矩阵是列优先的，实际上就是计算相机之间的平移参数(米制) baseline
             t = K.inverse() * t;
 
-
-            K = K * VisualOdometry::img_resize_;//因为前面你把读到的图像全部resize成了原来的一半，所以需要在内参矩阵上乘以0.5,将投影获得的像素坐标也变为原来的一半
+            // 图像被resize了，那么对应的内参也要resize
+            K = K * VisualOdometry::img_resize_;
 
 			// 初始的旋转矩阵都是I，只有平移不一样
             Camera::Ptr new_camera(new Camera(K(0, 0), K(1, 1), K(0, 2), K(1, 2),
@@ -77,6 +77,7 @@ namespace myslam{
 
 
         cv::Mat image_left, image_right;
+        
         // 灰度图形式读取
         image_left =
                 cv::imread((fmt % dataset_path_ % 0 % current_image_index_).str(),

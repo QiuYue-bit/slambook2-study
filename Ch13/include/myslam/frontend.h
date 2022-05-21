@@ -86,7 +86,8 @@ namespace myslam
         int tracking_inliers_ = 0;                  // 当前帧用于估计位姿的内点数目
         int num_features_needed_for_keyframe_ = 80; // 决定关键帧的内点数目阈值，小于这个值就要创建新的关键帧
 
-        cv::Ptr<cv::GFTTDetector> gftt_; // 特征检测器，在初始化的时候九确定了，我觉得可以设置为静态变量的
+//        cv::Ptr<cv::GFTTDetector> gftt_; // 特征检测器，在初始化的时候九确定了，我觉得可以设置为静态变量的
+        cv::Ptr<cv::FastFeatureDetector> gftt_;
 
         /**
          * Track in normal mode

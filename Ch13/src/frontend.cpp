@@ -16,8 +16,11 @@ namespace myslam
 
     Frontend::Frontend()
     {
-        // 创建特征提取器 关键点强度阈值0.01 关键点之间的最小距离为20
-        gftt_ = cv::GFTTDetector::create(Config::Get<int>("num_features"), 0.01, 20);
+        // 创建特征提取器GFTT 关键点强度阈值0.01 关键点之间的最小距离为20
+//        gftt_ = cv::GFTTDetector::create(Config::Get<int>("num_features"), 0.01, 20);
+
+        // FAST特征提取器
+        gftt_  = cv::FastFeatureDetector::create(Config::Get<int>("fast_threshold"));
 
         num_features_init_ = Config::Get<int>("num_features_init");
         num_features_ = Config::Get<int>("num_features");
